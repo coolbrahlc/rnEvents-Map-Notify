@@ -1,79 +1,42 @@
-
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, TextInput, View, ToastAndroid, Button, FlatList, Alert} from 'react-native';
-import ListItem from './components/ListItem';
+import {Platform, StyleSheet, Text, TextInput, View, Button, FlatList} from 'react-native';
+import ListItem from './Components/ListItem';
+import {observer} from 'mobx-react'
+import observableListStore from './Stores/ObservableStore';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+// const instructions = Platform.select({
+//   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
+//   android:
+//     'Double tap R on your keyboard to reload,\n' +
+//     'Shake or press menu button for dev menu',
+// });
 const LIGHT_GRAY = "#D3D3D3";
 
-
 type Props = {};
-export default class App extends Component<Props> {
+
+@observer
+class App extends Component<Props> {
+
   constructor(props) {
     super(props);
     this.state = {
       text: '',
-      data: [
-        {key: 'Walking in park'},
-      ]
     };
   }
+
   onPressSubmit = () =>{
-    const {data, text} = this.state;
-    const newItem = {key: text};
+    const {text} = this.state;
     if (text) {
-      this.setState({
-        data: [...data, newItem],
-        text: '',
-      })
+      observableListStore.addListItem({key: text})
     }
-  };
-
-  removeAlert = (index) =>{
-    Alert.alert(
-        'Confirmation',
-        'Are you sure?',
-        [
-          {
-            text: 'Cancel',
-            onPress: () => console.log('Cancel Pressed'),
-            style: 'cancel',
-          },
-          {text: 'OK', onPress: () => this.remove()},
-        ],
-        {cancelable: false},
-    );
-  };
-
-  remove = (index) =>{
-    const {data} = this.state;
-    data.splice(index, 1);
-    this.setState({
-      data: [...data],
-    })
-  };
-
-  edit = (index, newName) =>{
-    const {data} = this.state;
-    data[index] = {key: newName};
-    this.setState({
-      data: [...data],
-    });
-    return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
   };
 
 
   render() {
     return (
       <View style={styles.container}>
-
         <TextInput
-            style={{height: 40, padding: 10}}
+            style={{height: 40, margin: 10}}
             placeholder="Add event"
             onChangeText={(text) => this.setState({text})}
             value={this.state.text}
@@ -88,9 +51,8 @@ export default class App extends Component<Props> {
           />
         </View>
         <FlatList
-            data={this.state.data}
-            //renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>}
-            renderItem={({item, index}) => <ListItem name={item.key} id={index} remove={this.removeAlert} edit={this.edit}/>}
+            data={observableListStore.list}
+            renderItem={({item, index}) => <ListItem name={item.key} id={index}/>}
         />
       </View>
     );
@@ -111,6 +73,8 @@ const styles = StyleSheet.create({
     height: 44,
   },
 });
+
+export default App;
 
 /*const stylesOld = StyleSheet.create({
   container: {

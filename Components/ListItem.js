@@ -1,5 +1,6 @@
-import {StyleSheet, Text, TextInput, View,  TouchableOpacity, ToastAndroid} from "react-native";
+import {StyleSheet, Text, TextInput, View, TouchableOpacity, ToastAndroid, Alert} from "react-native";
 import React, {Component} from 'react';
+import observableListStore from "../Stores/ObservableStore";
 
 const BLUE = "#428AF8";
 const LIGHT_GRAY = "#D3D3D3";
@@ -24,14 +25,36 @@ export default class ListItem extends Component<Props> {
         if (newName.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        this.props.edit(id, newName);
+        observableListStore.editListItem(id, newName);
         this.setState({
             editMode: !this.state.editMode
-        })
+        });
+        return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
     };
 
+    removeAlert = (index) =>{
+        Alert.alert(
+            'Confirmation',
+            'Are you sure?',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                {text: 'OK', onPress: () => this.remove(index)},
+            ],
+            {cancelable: false},
+        );
+    };
+
+    remove = (index) => {
+        observableListStore.removeListItem(index)
+    };
+
+
     render() {
-        const {remove, id}= this.props;
+        const {id}= this.props;
         const {editMode, newName, isFocused}= this.state;
         return (
             <View style={styles.item}>
@@ -63,7 +86,7 @@ export default class ListItem extends Component<Props> {
                     <TouchableOpacity onPress={()=>this.switchEditMode()}>
                         <Text>Edit</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>remove(id)}>
+                    <TouchableOpacity onPress={()=>this.removeAlert(id)}>
                         <Text>Remove</Text>
                     </TouchableOpacity>
                 </View>
