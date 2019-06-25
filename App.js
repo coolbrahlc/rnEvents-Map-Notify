@@ -1,6 +1,6 @@
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, TextInput, View, AppRegistry, Button, FlatList} from 'react-native';
+import {Platform, StyleSheet, Text, TextInput, View, ToastAndroid, Button, FlatList, Alert} from 'react-native';
 import ListItem from './components/ListItem';
 
 const instructions = Platform.select({
@@ -9,6 +9,8 @@ const instructions = Platform.select({
     'Double tap R on your keyboard to reload,\n' +
     'Shake or press menu button for dev menu',
 });
+const LIGHT_GRAY = "#D3D3D3";
+
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -17,13 +19,12 @@ export default class App extends Component<Props> {
     this.state = {
       text: '',
       data: [
-        {key: 'Devin'},
+        {key: 'Walking in park'},
       ]
     };
   }
   onPressSubmit = () =>{
     const {data, text} = this.state;
-    //console.log(text);
     const newItem = {key: text};
     if (text) {
       this.setState({
@@ -31,6 +32,22 @@ export default class App extends Component<Props> {
         text: '',
       })
     }
+  };
+
+  removeAlert = (index) =>{
+    Alert.alert(
+        'Confirmation',
+        'Are you sure?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => this.remove()},
+        ],
+        {cancelable: false},
+    );
   };
 
   remove = (index) =>{
@@ -46,31 +63,34 @@ export default class App extends Component<Props> {
     data[index] = {key: newName};
     this.setState({
       data: [...data],
-    })
+    });
+    return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
   };
 
 
   render() {
     return (
       <View style={styles.container}>
-        {/*<Text style={styles.welcome}>Welcome to React Native?</Text>*/}
-        {/*<Text style={styles.instructions}>{instructions}</Text>*/}
+
         <TextInput
-            style={{height: 40}}
+            style={{height: 40, padding: 10}}
             placeholder="Add event"
             onChangeText={(text) => this.setState({text})}
             value={this.state.text}
+            underlineColorAndroid={LIGHT_GRAY}
         />
-        <Button
-            onPress={this.onPressSubmit}
-            title="Add event"
-            color="#841584"
-            accessibilityLabel="Learn more about this purple button"
-        />
+        <View style={{alignItems: 'flex-start', padding: 10}}>
+          <Button
+              onPress={this.onPressSubmit}
+              title="Add event"
+              color="#841584"
+              accessibilityLabel="Learn more about this purple button"
+          />
+        </View>
         <FlatList
             data={this.state.data}
             //renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>}
-            renderItem={({item, index}) => <ListItem name={item.key} id={index} remove={this.remove} edit={this.edit}/>}
+            renderItem={({item, index}) => <ListItem name={item.key} id={index} remove={this.removeAlert} edit={this.edit}/>}
         />
       </View>
     );
@@ -80,7 +100,10 @@ export default class App extends Component<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 22
+    justifyContent: 'center',
+    flexDirection: 'column',
+    paddingTop: 22,
+    backgroundColor: '#EAEDF2',
   },
   item: {
     padding: 10,
@@ -100,10 +123,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
   },
 });*/
