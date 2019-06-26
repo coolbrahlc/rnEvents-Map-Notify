@@ -28,33 +28,34 @@ class App extends Component<Props> {
     const {text} = this.state;
     if (text) {
       observableListStore.addListItem({key: text})
+      this.setState({text: ''})
     }
   };
 
 
   render() {
     return (
-      <View style={styles.container}>
-        <TextInput
-            style={{height: 40, margin: 10}}
-            placeholder="Add event"
-            onChangeText={(text) => this.setState({text})}
-            value={this.state.text}
-            underlineColorAndroid={LIGHT_GRAY}
-        />
-        <View style={{alignItems: 'flex-start', padding: 10}}>
-          <Button
-              onPress={this.onPressSubmit}
-              title="Add event"
-              color="#841584"
-              accessibilityLabel="Learn more about this purple button"
+        <View style={styles.container}>
+          <TextInput
+              style={{height: 40, margin: 10}}
+              placeholder="Add event"
+              onChangeText={(text) => this.setState({text})}
+              value={this.state.text}
+              underlineColorAndroid={LIGHT_GRAY}
+          />
+          <View style={{alignItems: 'flex-start', padding: 10}}>
+            <Button
+                onPress={this.onPressSubmit}
+                title="Add event"
+                color="#841584"
+                accessibilityLabel="Learn more about this purple button"
+            />
+          </View>
+          <FlatList
+              data={observableListStore.list}
+              renderItem={({item, index}) => <ListItem name={item.key} id={index}/>}
           />
         </View>
-        <FlatList
-            data={observableListStore.list}
-            renderItem={({item, index}) => <ListItem name={item.key} id={index}/>}
-        />
-      </View>
     );
   }
 }

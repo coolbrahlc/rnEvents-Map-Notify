@@ -1,15 +1,17 @@
 import {observable} from 'mobx/lib/mobx'
 
-let index = 0;
+
+//let index = 0;
 
 class ObservableListStore {
     @observable list = [
         {key: 'Walking in park'},
     ];
+    @observable inputText = '';
 
     addListItem (item) {
         this.list = [...this.list, item];
-        index++
+        //index++
     }
 
     removeListItem (id) {

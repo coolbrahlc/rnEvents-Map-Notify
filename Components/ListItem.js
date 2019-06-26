@@ -25,6 +25,7 @@ export default class ListItem extends Component<Props> {
         if (newName.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
+        //const {observableListStore} = this.props;
         observableListStore.editListItem(id, newName);
         this.setState({
             editMode: !this.state.editMode
@@ -49,6 +50,7 @@ export default class ListItem extends Component<Props> {
     };
 
     remove = (index) => {
+        //const {observableListStore} = this.props;
         observableListStore.removeListItem(index)
     };
 
