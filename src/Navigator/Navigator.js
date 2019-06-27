@@ -11,6 +11,18 @@ import FAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 
 const RouteConfig = {
+    ToDos: {
+        screen: ToDosScreen,
+        navigationOptions: () => ({
+            tabBarIcon: ({ tintColor }) => (
+                <FAwesomeIcon
+                    name="sticky-note"
+                    color={tintColor}
+                    size={22}
+                />
+            ),
+        }),
+    },
     Map: {
         screen: Map,
         navigationOptions: () => ({
@@ -18,19 +30,7 @@ const RouteConfig = {
                 <FAwesomeIcon
                     name="map-marker"
                     color={tintColor}
-                    size={14}
-                />
-            ),
-        }),
-    },
-    ToDos: {
-        screen: ToDosScreen,
-        navigationOptions: () => ({
-            tabBarIcon: ({ tintColor }) => (
-                <FAwesomeIcon
-                    name="book-open"
-                    color={tintColor}
-                    size={14}
+                    size={22}
                 />
             ),
         }),
