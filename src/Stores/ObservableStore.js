@@ -65,7 +65,7 @@ class ObservableListStore {
 
     editListItem(index, newName) {
         const listCopy = [...this.list];
-        listCopy[index] = {name: newName};
+        listCopy[index].name = newName;
         this.list = listCopy
     }
 }

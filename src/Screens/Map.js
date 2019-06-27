@@ -9,7 +9,7 @@ import {
     Alert,
 } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import locationMarker from '../Images/baseline_location_on_black_36dp.png'
+import locationMarker from '../Images/google-maps-marker-for-residencelamontagne.svg.hi.png'
 import {inject, observer} from "mobx-react";
 const latitudeDelta = 0.025;
 const longitudeDelta = 0.025;
@@ -112,6 +112,12 @@ const styles = StyleSheet.create({
         marginTop: -20,
         position: 'absolute',
         top: '50%'
+    },
+    marker: {
+        flex: 1,
+        width: 50,
+        height: 50,
+        resizeMode: 'contain'
     },
     footer: {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
