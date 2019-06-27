@@ -1,5 +1,6 @@
 import {observable} from 'mobx/lib/mobx'
-
+import { create, persist } from 'mobx-persist'
+import {AsyncStorage} from 'react-native';
 
 // class ToDoItem {
 //     @observable name;
@@ -12,43 +13,43 @@ import {observable} from 'mobx/lib/mobx'
 // }
 
 class ObservableListStore {
-    @observable.shallow list = [
-        {
-            name: 'Walking in park',
-            geoLocation: {
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta: 0.025,
-                longitudeDelta: 0.025,
-            },
-        },
-        {
-            name: 'Sports in morning',
-            geoLocation: {
-                latitude: 37.78725,
-                longitude: -122.4323,
-                latitudeDelta: 0.025,
-                longitudeDelta: 0.025,
-            },
-        },
-        {
-            name: 'Sports in morning',
-            geoLocation: {
-                latitude: 37.78725,
-                longitude: -122.4323,
-                latitudeDelta: 0.025,
-                longitudeDelta: 0.025,
-            },
-        },
-        {
-            name: 'Sports in morning',
-            geoLocation: {
-                latitude: 37.78725,
-                longitude: -122.4323,
-                latitudeDelta: 0.025,
-                longitudeDelta: 0.025,
-            },
-        },
+    @persist('list') @observable.shallow list = [
+        // {
+        //     name: 'Walking in park',
+        //     geoLocation: {
+        //         latitude: 37.78825,
+        //         longitude: -122.4324,
+        //         latitudeDelta: 0.025,
+        //         longitudeDelta: 0.025,
+        //     },
+        // },
+        // {
+        //     name: 'Sports in morning',
+        //     geoLocation: {
+        //         latitude: 37.78725,
+        //         longitude: -122.4323,
+        //         latitudeDelta: 0.025,
+        //         longitudeDelta: 0.025,
+        //     },
+        // },
+        // {
+        //     name: 'Sports in morning',
+        //     geoLocation: {
+        //         latitude: 37.78725,
+        //         longitude: -122.4323,
+        //         latitudeDelta: 0.025,
+        //         longitudeDelta: 0.025,
+        //     },
+        // },
+        // {
+        //     name: 'Sports in morning',
+        //     geoLocation: {
+        //         latitude: 37.78725,
+        //         longitude: -122.4323,
+        //         latitudeDelta: 0.025,
+        //         longitudeDelta: 0.025,
+        //     },
+        // },
     ];
     //@observable inputText = '';
 
@@ -70,6 +71,14 @@ class ObservableListStore {
     }
 }
 
+const hydrate = create({
+    storage: AsyncStorage,
+    jsonify: true,
+});
+
 
 const listStore = new ObservableListStore();
+hydrate('some', listStore)
+.then(() => console.log('someStore has been hydrated'))
+.catch(err => console.log(err));
 export default listStore

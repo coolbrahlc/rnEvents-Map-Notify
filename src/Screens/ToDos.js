@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, TextInput, View, Button, FlatList, Alert, Modal, TouchableHighlight} from 'react-native';
+import {StyleSheet, Text, TextInput, View, Button, FlatList, Alert, Modal, TouchableHighlight} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
 import listStore from "../Stores/ObservableStore";
@@ -117,14 +117,8 @@ const styles = StyleSheet.create({
 
 export default ToDosScreen;
 
-/*const stylesOld = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
+/*
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
     fontSize: 20,
     textAlign: 'center',
-    margin: 10,
-  },
-});*/
+*/

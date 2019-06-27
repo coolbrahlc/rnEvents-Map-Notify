@@ -66,6 +66,7 @@ class Map extends Component<Props> {
             )
         } else {
             const markers = [...listStore.list];
+            const filtered = markers.filter(item=> item.geoLocation !== null);
             return (
                 <View style={styles.container}>
                     <MapView
@@ -74,7 +75,7 @@ class Map extends Component<Props> {
                         region={this.state.region}
                         onRegionChangeComplete={this.onRegionChange}
                     >
-                        {markers.map((item, index) => (
+                        {filtered.map((item, index) => (
                             <View>
                                 <Marker
                                     onPress={()=>Alert.alert('123')}

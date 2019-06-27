@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "mobx": "^5.10.1",
+    "mobx-persist": "^0.4.1",
     "mobx-react": "^5.4.4",
     "react": "16.8.3",
     "react-dom": "^16.8.6",
