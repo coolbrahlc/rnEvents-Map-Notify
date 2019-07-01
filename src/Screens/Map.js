@@ -1,19 +1,17 @@
 import React, {Component} from 'react';
-import {
-    StyleSheet,
-    Text,
-    View,
-    Image,
-    SafeAreaView,
-    TouchableOpacity,
-    Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, Image, SafeAreaView, Alert } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import locationMarker from '../Images/google-maps-marker-for-residencelamontagne.svg.hi.png'
 import {inject, observer} from "mobx-react";
+
 const latitudeDelta = 0.025;
 const longitudeDelta = 0.025;
-
+const defaultMap = {
+    latitude: 37.78825,
+    longitude: -122.4324,
+    latitudeDelta,
+    longitudeDelta
+};
 
 @inject('listStore')
 @observer
@@ -21,23 +19,15 @@ class Map extends Component<Props> {
     constructor(props) {
         super(props);
         this.state = {
-            region: {
-                latitude: 37.78825,
-                longitude: -122.4324,
-                latitudeDelta,
-                longitudeDelta
-            },
+            region: props.geoLocation ? props.geoLocation : defaultMap,
         };
     }
     onRegionChange = (region) => {
         this.setState({ region });
+        const {saveLocation, editMode} = this.props;
+        editMode && saveLocation(region);
     };
 
-    saveGeoLocation = () =>{
-        const {setModalVisible, saveLocation} = this.props;
-        saveLocation(this.state.region);
-        setModalVisible();
-    };
 
     renderMapView= () =>{
         const {editMode, listStore} = this.props;
@@ -56,9 +46,6 @@ class Map extends Component<Props> {
                         <Image style={styles.marker} source={locationMarker} />
                     </View>
                     <SafeAreaView style={styles.footer}>
-                        <TouchableOpacity onPress={() => this.saveGeoLocation()}>
-                            <Text style={styles.region}>Save geo</Text>
-                        </TouchableOpacity>
                         <Text style={styles.regionCoordinates}>({latitude}, {longitude})</Text>
                     </SafeAreaView>
                 </View>
@@ -82,7 +69,6 @@ class Map extends Component<Props> {
                                     description={item.name}
                                 />
                             </View>
-
                         ))}
                     </MapView>
                 </View>
@@ -105,8 +91,8 @@ const styles = StyleSheet.create({
     },
     markerFixed: {
         left: '50%',
-        marginLeft: -10,
-        marginTop: -20,
+        marginLeft: -25,
+        marginTop: -30,
         position: 'absolute',
         top: '50%'
     },

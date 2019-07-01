@@ -2,6 +2,7 @@ import {observable} from 'mobx/lib/mobx'
 import { create, persist } from 'mobx-persist'
 import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
+
 // class ToDoItem {
 //     @observable name;
 //     @observable geoLocation;
@@ -25,9 +26,9 @@ class ObservableListStore {
         this.list = this.list.filter((item, index) => id !== index)
     }
 
-    editListItem(index, newName) {
+    editListItem(index, newData) {
         const listCopy = [...this.list];
-        listCopy[index].name = newName;
+        listCopy[index] = {...newData};
         this.list = listCopy
     }
 }
@@ -37,8 +38,12 @@ const hydrate = create({
     jsonify: true,
 });
 
-const RemoteStore = remotedev(ObservableListStore)
+const RemoteStore = remotedev(ObservableListStore);
 
+// const clearAsyncStorage = async() => {
+//     AsyncStorage.clear();
+// };
+// clearAsyncStorage().then( data => console.log('success'));
 
 const listStore = new RemoteStore();
 hydrate('some', listStore)

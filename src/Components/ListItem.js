@@ -1,38 +1,12 @@
-import {StyleSheet, Text, TextInput, View, TouchableOpacity, ToastAndroid, Alert} from "react-native";
+import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Alert} from "react-native";
 import React, {Component} from 'react';
+import {inject, observer} from "mobx-react";
 
-const BLUE = "#428AF8";
 const LIGHT_GRAY = "#D3D3D3";
 
-// @inject('observableListStore')
-// @observer
+@inject('listStore')
+@observer
 export default class ListItem extends Component<Props> {
-    constructor(props) {
-        super(props);
-        this.state = {
-            editMode: false,
-            newName: this.props.name,
-        };
-    }
-
-    switchEditMode = () => {
-        this.setState({
-            editMode: !this.state.editMode,
-            newName: this.props.name,
-        })
-    };
-
-    edit = (id, newName) => {
-        if (newName.length === 0) {
-            return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
-        }
-        const {listStore} = this.props;
-        listStore.editListItem(id, newName);
-        this.setState({
-            editMode: !this.state.editMode
-        });
-        return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
-    };
 
     removeAlert = (index) =>{
         Alert.alert(
@@ -51,48 +25,27 @@ export default class ListItem extends Component<Props> {
     };
 
     remove = (index) => {
-        const {listStore} = this.props;
-        listStore.removeListItem(index);
+        this.props.listStore.removeListItem(index);
         return ToastAndroid.show('Removed', ToastAndroid.SHORT);
     };
 
 
     render() {
-        const {id, eventDate}= this.props;
-        const {editMode, newName, /*isFocused*/}= this.state;
+        const {item :{name, description, geoLocation}, id, showEdit}= this.props;
         return (
             <View style={styles.item}>
-                {
-                    editMode ?
-                    <TextInput
-                        style={{height: 35, maxWidth: '50%'}}
-                        placeholder={this.props.name}
-                        onChangeText={(newName) => this.setState({newName})}
-                        value={this.state.newName}
-                        underlineColorAndroid={LIGHT_GRAY}
-                    />
-                    :
-                        <View style={{width: '60%'}}>
-                            <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{this.props.name}</Text>
-                            <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{this.props.description}</Text>
-                        </View>
-
-                }
-                {editMode &&
-                <TouchableOpacity onPress={()=>this.edit(id, newName)}>
-                    <Text>Submit</Text>
-                </TouchableOpacity>
-                }
+                <View style={{width: '60%'}}>
+                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{name}</Text>
+                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text>
+                </View>
                 <View style={styles.actionsColumn}>
-
-                    <TouchableOpacity onPress={()=>this.switchEditMode()}>
+                    <TouchableOpacity onPress={() => showEdit({id, name, description, geoLocation})}>
                         <Text>Edit</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>this.removeAlert(id)}>
                         <Text>Remove</Text>
                     </TouchableOpacity>
                 </View>
-
             </View>
         );
     }

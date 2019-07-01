@@ -1,12 +1,13 @@
 import ToDosScreen from '../Screens/ToDos';
 import Map from '../Screens/Map';
+import EditModal from '../Components/EditModal';
+import transitionConfig from '../Utils/TransitionModal';
 import React from 'react';
 import {
     createBottomTabNavigator,
-    createAppContainer
+    createAppContainer,
+    createStackNavigator
 } from 'react-navigation';
-
-
 import FAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 
@@ -37,6 +38,7 @@ const RouteConfig = {
     },
 };
 
+
 const BottomNavigatorConfig = {
     tabBarOptions: {
         activeTintColor: 'rgb(255,255,255)', //color when tab is active
@@ -48,7 +50,25 @@ const BottomNavigatorConfig = {
     },
 };
 
-const RootStack = createBottomTabNavigator(RouteConfig, BottomNavigatorConfig);
+const MainStack = createBottomTabNavigator(RouteConfig, BottomNavigatorConfig);
+
+const RootStack = createStackNavigator(
+    {
+        Main: {
+            screen: MainStack,
+        },
+        EditModal: {
+            screen: EditModal,
+        },
+    },
+    {
+        mode: 'modal',
+        headerMode: 'none',
+        //transparentCard: true,
+        //transitionConfig,
+    }
+);
+
 
 const AppNavigator = createAppContainer(RootStack);
 
