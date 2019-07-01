@@ -52,13 +52,14 @@ export default class ListItem extends Component<Props> {
 
     remove = (index) => {
         const {listStore} = this.props;
-        listStore.removeListItem(index)
+        listStore.removeListItem(index);
+        return ToastAndroid.show('Removed', ToastAndroid.SHORT);
     };
 
 
     render() {
-        const {id}= this.props;
-        const {editMode, newName, isFocused}= this.state;
+        const {id, eventDate}= this.props;
+        const {editMode, newName, /*isFocused*/}= this.state;
         return (
             <View style={styles.item}>
                 {
@@ -71,7 +72,11 @@ export default class ListItem extends Component<Props> {
                         underlineColorAndroid={LIGHT_GRAY}
                     />
                     :
-                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{this.props.name}</Text>
+                        <View style={{width: '60%'}}>
+                            <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{this.props.name}</Text>
+                            <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{this.props.description}</Text>
+                        </View>
+
                 }
                 {editMode &&
                 <TouchableOpacity onPress={()=>this.edit(id, newName)}>
@@ -102,9 +107,9 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        padding: 15,
+        padding: 10,
         fontSize: 20,
-        height: 50,
+        height: 60,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -115,13 +120,19 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     name: {
+        fontSize: 16,
         color: 'black',
-        maxWidth: '70%',
+    },
+    description: {
+        color: 'grey',
+        fontSize: 14,
     },
     actionsColumn: {
         width: 100,
         justifyContent: 'space-between',
         flexDirection: 'row',
+        alignItems: 'center',
+
     },
     button: {
         alignItems: 'center',

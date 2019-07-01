@@ -1,7 +1,7 @@
 import {observable} from 'mobx/lib/mobx'
 import { create, persist } from 'mobx-persist'
-import {AsyncStorage} from 'react-native';
-
+import AsyncStorage from '@react-native-community/async-storage';
+import remotedev from 'mobx-remotedev';
 // class ToDoItem {
 //     @observable name;
 //     @observable geoLocation;
@@ -13,54 +13,15 @@ import {AsyncStorage} from 'react-native';
 // }
 
 class ObservableListStore {
-    @persist('list') @observable.shallow list = [
-        // {
-        //     name: 'Walking in park',
-        //     geoLocation: {
-        //         latitude: 37.78825,
-        //         longitude: -122.4324,
-        //         latitudeDelta: 0.025,
-        //         longitudeDelta: 0.025,
-        //     },
-        // },
-        // {
-        //     name: 'Sports in morning',
-        //     geoLocation: {
-        //         latitude: 37.78725,
-        //         longitude: -122.4323,
-        //         latitudeDelta: 0.025,
-        //         longitudeDelta: 0.025,
-        //     },
-        // },
-        // {
-        //     name: 'Sports in morning',
-        //     geoLocation: {
-        //         latitude: 37.78725,
-        //         longitude: -122.4323,
-        //         latitudeDelta: 0.025,
-        //         longitudeDelta: 0.025,
-        //     },
-        // },
-        // {
-        //     name: 'Sports in morning',
-        //     geoLocation: {
-        //         latitude: 37.78725,
-        //         longitude: -122.4323,
-        //         latitudeDelta: 0.025,
-        //         longitudeDelta: 0.025,
-        //     },
-        // },
-    ];
+    @persist('list') @observable.shallow list = [];
     //@observable inputText = '';
 
     addListItem (item) {
         //const newToDo = new ToDoItem(item.name, item.geoLocation);
-        //console.log(newToDo.name)
         this.list = [...this.list, item];
     }
 
     removeListItem (id) {
-        //this.list.splice(index, 1);
         this.list = this.list.filter((item, index) => id !== index)
     }
 
@@ -76,9 +37,14 @@ const hydrate = create({
     jsonify: true,
 });
 
+const RemoteStore = remotedev(ObservableListStore)
 
-const listStore = new ObservableListStore();
+
+const listStore = new RemoteStore();
 hydrate('some', listStore)
 .then(() => console.log('someStore has been hydrated'))
 .catch(err => console.log(err));
+
+//export default remotedev(appStore);
+
 export default listStore

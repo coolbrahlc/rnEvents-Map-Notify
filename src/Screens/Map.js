@@ -41,7 +41,6 @@ class Map extends Component<Props> {
 
     renderMapView= () =>{
         const {editMode, listStore} = this.props;
-        //console.log(listStore);
         const {latitude, longitude} = this.state.region;
         if (editMode) {
             return (
@@ -65,8 +64,7 @@ class Map extends Component<Props> {
                 </View>
             )
         } else {
-            const markers = [...listStore.list];
-            const filtered = markers.filter(item=> item.geoLocation !== null);
+            const markers = listStore.list.filter(item=> item.geoLocation !== null);
             return (
                 <View style={styles.container}>
                     <MapView
@@ -75,7 +73,7 @@ class Map extends Component<Props> {
                         region={this.state.region}
                         onRegionChangeComplete={this.onRegionChange}
                     >
-                        {filtered.map((item, index) => (
+                        {markers.map((item, index) => (
                             <View>
                                 <Marker
                                     onPress={()=>Alert.alert('123')}
@@ -93,9 +91,7 @@ class Map extends Component<Props> {
 
     };
 
-    render() {
-        return this.renderMapView()
-    }
+    render() {return this.renderMapView()}
 }
 
 const styles = StyleSheet.create({
