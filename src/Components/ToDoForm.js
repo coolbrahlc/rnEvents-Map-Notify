@@ -1,13 +1,15 @@
-import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Alert, TextInput, Button} from "react-native";
+import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Image, TextInput, Button, Switch} from "react-native";
 import React, {Component} from 'react';
-import {CheckBox} from "native-base";
+//import {CheckBox} from "native-base";
 import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import {inject, observer} from "mobx-react";
+import RightChevron from '../Images/baseline_chevron_right_black_18dp.png'
 
 const LIGHT_GRAY = "#D3D3D3";
 
 @inject('listStore')
+@inject('notif')
 @observer
 export default class ToDoForm extends Component<Props> {
 
@@ -17,7 +19,7 @@ export default class ToDoForm extends Component<Props> {
         this.state = {
             name: getParam('name', ''),
             description: getParam('description', ''),
-            eventDate: null,
+            eventDate: getParam('eventDate', new Date()),
             geoLocation: getParam('geoLocation', null),
             showDatepicker: false,
             mapChecked: !!getParam('geoLocation', ''),
@@ -39,6 +41,7 @@ export default class ToDoForm extends Component<Props> {
     };
 
     switchDateTimePicker = () => {
+        console.log(this.state.showDatepicker)
         this.setState({ showDatepicker: !this.state.showDatepicker });
     };
 
@@ -49,8 +52,8 @@ export default class ToDoForm extends Component<Props> {
     };
 
     onSubmit = () =>{
-        const {listStore, navigation:{goBack}} = this.props;
-        const {name, geoLocation, description, eventDate, } = this.state;
+        const {listStore, navigation:{goBack}, notif} = this.props;
+        const {name, geoLocation, description, eventDate} = this.state;
         if (name) {
             listStore.addListItem({
                 name,
@@ -58,12 +61,15 @@ export default class ToDoForm extends Component<Props> {
                 geoLocation,
                 eventDate
             });
+            if (eventDate) {
+                notif.scheduleNotif(eventDate, name, description)
+            }
             this.setState({
                 name:'',
                 description: '',
                 geoLocation: null,
-                eventDate: null,
-                mapChecked: false
+                eventDate: new Date(),
+                mapChecked: false,
             });
             goBack();
         } else {
@@ -72,13 +78,13 @@ export default class ToDoForm extends Component<Props> {
     };
 
     edit = () => {
-        const {name, description, geoLocation} = this.state;
+        const {name, description, geoLocation, eventDate} = this.state;
         const {listStore, navigation:{getParam, goBack}} = this.props;
         const id = getParam('id');
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        listStore.editListItem(id, {name, description, geoLocation});
+        listStore.editListItem(id, {name, description, geoLocation, eventDate});
         goBack();
         return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
     };
@@ -95,10 +101,10 @@ export default class ToDoForm extends Component<Props> {
     };
 
     render() {
-        const {eventDate, mapChecked} = this.state;
+        const {eventDate, mapChecked, showDatepicker} = this.state;
         const {editMode} = this.props;
         return (
-            <View style={editMode? styles.card:{}}>
+            <View style={styles.card}>
                 <TextInput
                     style={{height: 40, margin: 10}}
                     placeholder="Add event"
@@ -113,46 +119,52 @@ export default class ToDoForm extends Component<Props> {
                     value={this.state.description}
                     underlineColorAndroid={LIGHT_GRAY}
                 />
+                <View style={{paddingLeft: 10, paddingRight:10, flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <Text style={{	fontWeight: 'bold'}}>Geolocation</Text>
+                    <Switch  value={mapChecked} onValueChange={()=>this.switchMapCheckboox()}/>
+                </View>
                 <View style={{marginBottom: 10}}>
-
-                    <CheckBox checked={mapChecked} onPress={()=>this.switchMapCheckboox()}/>
-
                     { this.renderMap() }
                 </View>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10}}>
-                    {
-                        eventDate ? <Text>{eventDate.toUTCString()}</Text> :
-                            <View>
-                                <Button title="Choose date" onPress={this.switchDateTimePicker} />
-                                <DateTimePicker
-                                    isVisible={this.state.showDatepicker}
-                                    mode={'datetime'}
-                                    onConfirm={this.handleDatePicked}
-                                    onCancel={this.switchDateTimePicker}
-                                />
-                            </View>
-                    }
+                <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 10, marginTop: 0}}>
+                    <Text style={{	fontWeight: 'bold'}}>Event time</Text>
+                    <TouchableOpacity onPress={()=>this.switchDateTimePicker()}>
+                        <Text >
+                            {eventDate.toString().substring(0, 21)}
+                            <Image source={RightChevron}/>
+                        </Text>
+                    </TouchableOpacity>
+                    {/*<Button title="Choose date" onPress={this.switchDateTimePicker} />*/}
+                    <DateTimePicker
+                        isVisible={this.state.showDatepicker}
+                        mode={'datetime'}
+                        onConfirm={this.handleDatePicked}
+                        onCancel={this.switchDateTimePicker}
+                    />
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 10}}>
                     {
-                        this.props.editMode?
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
-                                <Button
-                                    onPress={() => this.props.navigation.goBack()}
-                                    title="Dismiss"
-                                />
-                                <Button
-                                    onPress={()=>this.edit()}
-                                    title="Edit"
-                                    color="#841584"
-                                />
-                            </View> :
+                        this.props.editMode ?
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+                            <Button
+                                onPress={() => this.props.navigation.goBack()}
+                                title="Dismiss"
+                            />
+                            <Button
+                                onPress={()=>this.edit()}
+                                title="Edit"
+                                color="#841584"
+                            />
+                        </View>
+                            :
+                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
                             <Button
                                 onPress={this.onSubmit}
                                 title="Add event"
                                 color="#841584"
                                 accessibilityLabel="Learn more about this purple button"
                             />
+                        </View>
                     }
                 </View>
             </View>

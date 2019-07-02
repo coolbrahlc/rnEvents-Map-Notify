@@ -31,15 +31,16 @@ export default class ListItem extends Component<Props> {
 
 
     render() {
-        const {item :{name, description, geoLocation}, id, showEdit}= this.props;
+        const {item :{name, description, geoLocation, eventDate}, id, showEdit, }= this.props;
+        console.log(!!description, 555)
         return (
             <View style={styles.item}>
-                <View style={{width: '60%'}}>
+                <View style={styles.itemName}>
                     <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{name}</Text>
-                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text>
+                    { !!description &&  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text> }
                 </View>
                 <View style={styles.actionsColumn}>
-                    <TouchableOpacity onPress={() => showEdit({id, name, description, geoLocation})}>
+                    <TouchableOpacity onPress={() => showEdit({id, name, description, geoLocation, eventDate})}>
                         <Text>Edit</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>this.removeAlert(id)}>
@@ -71,6 +72,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.22,
         shadowRadius: 2.22,
         elevation: 3,
+    },
+    itemName: {
+        width: '60%',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
     },
     name: {
         fontSize: 16,

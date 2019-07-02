@@ -1,57 +1,65 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator} from 'react-native';
 import ListItem from '../Components/ListItem';
-import ToDoForm from '../Components/ToDoForm';
 import {observer, inject} from 'mobx-react/index'
 import listStore from "../Stores/ObservableStore";
-import NotifService from '../Utils/NotifService';
+import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
+//import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
 
 @inject('listStore')
+@inject('notif')
 @observer
 class ToDosScreen extends Component<Props> {
 
-    constructor(props) {
-        super(props);
-        this.notif = new NotifService(this.onRegisterNotif, this.onNotif);
-    }
-
-    showEditModal = ({id, name, description, geoLocation}) => {
-        this.props.navigation.navigate('EditModal', {id, name, description, geoLocation, editMode: true})
+    showEditModal = ({id, name, description, geoLocation, eventDate}) => {
+        this.props.navigation.navigate('EditModal', {id, name, description, geoLocation, eventDate, editMode: true})
     };
     showCreateModal = () => {
         this.props.navigation.navigate('EditModal', {editMode: false})
     };
+    componentDidMount() {
+        const {listStore, notif} = this.props;
+        listStore.loadWeatherGenerator();
+    }
 
-    onRegisterNotif = (token) => {
-        Alert.alert("Registered !", JSON.stringify(token));
-        console.log(token);
-        this.setState({ registerToken: token.token, gcmRegistered: true });
+    newDog = () => {
+        listStore.loadWeatherGenerator(false);
     };
-
-    onNotif = (notif) => {
-        console.log(notif);
-        Alert.alert(notif.title, notif.message);
-    };
-
 
     render() {
-        const {listStore} = this.props;
+        const {listStore:{dog, isFetching, list}, notif} = this.props;
         return (
             <View style={styles.container}>
-
                 <View style={{padding: 10}}>
                     <Button
                         onPress={this.showCreateModal}
                         title="Add event"
                         color="#841584"
                     />
-                    <TouchableOpacity style={styles.button} onPress={() => { this.notif.localNotif() }}><Text>Local Notification (now)</Text></TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={() => { this.notif.scheduleNotif() }}><Text>Schedule Notification in 3s</Text></TouchableOpacity>
+                    <View style={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
+                        { isFetching?
+                            <ActivityIndicator size="large" color="grey" />
+                            :
+                            <Image
+                                style={{width: 300, height: 300}}
+                                source={{uri: dog}}
+                            />
+                        }
+                    </View>
+                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                        <TouchableOpacity onPress={this.newDog}>
+                            <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>
+                        </TouchableOpacity>
+                    </View>
+                    {/*<TouchableOpacity style={styles.button} onPress={() => { notif.localNotif() }}>*/}
+                    {/*    <Text>Local Notification (now)</Text>*/}
+                    {/*</TouchableOpacity>*/}
+                    {/*<TouchableOpacity style={styles.button} onPress={() => { notif.scheduleNotif() }}>*/}
+                    {/*    <Text>Schedule Notification in 3s</Text>*/}
+                    {/*</TouchableOpacity>*/}
                 </View>
-
-                {/*<ToDoForm {...this.props}/>*/}
                 <FlatList
-                    data={listStore.list}
+                    data={list}
                     renderItem={({item, index}) => (
                         <ListItem
                             item={item}

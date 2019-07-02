@@ -1,7 +1,7 @@
 import ToDosScreen from '../Screens/ToDos';
 import Map from '../Screens/Map';
 import EditModal from '../Components/EditModal';
-import transitionConfig from '../Utils/TransitionModal';
+import transitionConfig from '../Utils/TransitionConfig';
 import React from 'react';
 import {
     createBottomTabNavigator,
