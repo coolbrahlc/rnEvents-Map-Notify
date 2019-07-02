@@ -27,14 +27,14 @@ class ToDosScreen extends Component<Props> {
         const {listStore:{dog, isFetching, list, error}, notif} = this.props;
         if (error) {
             return (
-                <ScrollView contentContainerStyle={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
+                <View contentContainerStyle={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
                     <Text>Error</Text>
-                </ScrollView>
+                </View>
             )
         }
 
         return (
-            <ScrollView contentContainerStyle={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
+            <View style={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
                 { isFetching?
                     <ActivityIndicator size="large" color="grey" />
                     :
@@ -43,7 +43,7 @@ class ToDosScreen extends Component<Props> {
                         source={{uri: dog}}
                     />
                 }
-            </ScrollView>
+            </View>
         )
     };
 
@@ -57,12 +57,12 @@ class ToDosScreen extends Component<Props> {
                         title="Add event"
                         color="#841584"
                     />
-                    { this.renderImage() }
-                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                        <TouchableOpacity onPress={this.newDog}>
-                            <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>
-                        </TouchableOpacity>
-                    </View>
+                    {/*{ this.renderImage() }*/}
+                    {/*<View style={{flexDirection: 'row', justifyContent: 'center'}}>*/}
+                    {/*    <TouchableOpacity onPress={this.newDog}>*/}
+                    {/*        <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>*/}
+                    {/*    </TouchableOpacity>*/}
+                    {/*</View>*/}
                     {/*<TouchableOpacity style={styles.button} onPress={() => { notif.localNotif() }}>*/}
                     {/*    <Text>Local Notification (now)</Text>*/}
                     {/*</TouchableOpacity>*/}
