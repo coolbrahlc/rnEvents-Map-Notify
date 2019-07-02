@@ -1,20 +1,36 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button,} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text} from 'react-native';
 import ListItem from '../Components/ListItem';
 import ToDoForm from '../Components/ToDoForm';
 import {observer, inject} from 'mobx-react/index'
 import listStore from "../Stores/ObservableStore";
-
+import NotifService from '../Utils/NotifService';
 
 @inject('listStore')
 @observer
 class ToDosScreen extends Component<Props> {
+
+    constructor(props) {
+        super(props);
+        this.notif = new NotifService(this.onRegisterNotif, this.onNotif);
+    }
 
     showEditModal = ({id, name, description, geoLocation}) => {
         this.props.navigation.navigate('EditModal', {id, name, description, geoLocation, editMode: true})
     };
     showCreateModal = () => {
         this.props.navigation.navigate('EditModal', {editMode: false})
+    };
+
+    onRegisterNotif = (token) => {
+        Alert.alert("Registered !", JSON.stringify(token));
+        console.log(token);
+        this.setState({ registerToken: token.token, gcmRegistered: true });
+    };
+
+    onNotif = (notif) => {
+        console.log(notif);
+        Alert.alert(notif.title, notif.message);
     };
 
 
@@ -29,7 +45,10 @@ class ToDosScreen extends Component<Props> {
                         title="Add event"
                         color="#841584"
                     />
+                    <TouchableOpacity style={styles.button} onPress={() => { this.notif.localNotif() }}><Text>Local Notification (now)</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={() => { this.notif.scheduleNotif() }}><Text>Schedule Notification in 3s</Text></TouchableOpacity>
                 </View>
+
                 {/*<ToDoForm {...this.props}/>*/}
                 <FlatList
                     data={listStore.list}
