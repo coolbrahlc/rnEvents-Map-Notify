@@ -1,8 +1,9 @@
-import {observable} from 'mobx/lib/mobx'
+import {observable, action} from 'mobx/lib/mobx'
 import { create, persist } from 'mobx-persist'
 import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";
+import axios from 'axios';
 
 // class ToDoItem {
 //     @observable name;
@@ -14,22 +15,22 @@ import { flow } from "mobx";
 //     }
 // }
 
-class ObservableListStore {
+class ListStore {
     @persist('list') @observable.shallow list = [];
     @observable dog = null;
-    @observable isFetching = true;
+    @observable isFetching = false;
     @observable error = null;
 
-    addListItem (item) {
+    @action addListItem (item) {
         //const newToDo = new ToDoItem(item.name, item.geoLocation);
         this.list = [...this.list, item];
     }
 
-    removeListItem (id) {
+    @action removeListItem (id) {
         this.list = this.list.filter((item, index) => id !== index)
     }
 
-    editListItem(index, newData) {
+    @action editListItem(index, newData) {
         const listCopy = [...this.list];
         listCopy[index] = newData;
         this.list = listCopy
@@ -41,11 +42,12 @@ class ObservableListStore {
             this.isFetching = true;
         }
         try {
-            const response =  yield fetch(`https://dog.ceo/api/breeds/image/random`);
-            const dog = yield response.json();
+            const {data: {message}} = yield axios.get(`https://dog.ceo/api/breeds/image/random`);
             this.isFetching = false;
-            this.dog = dog.message
+            this.dog = message;
         } catch (error) {
+            console.log(error, 'err')
+            this.isFetching = false;
             this.error = "error"
         }
     });
@@ -56,7 +58,7 @@ const hydrate = create({
     jsonify: true,
 });
 
-const RemoteStore = remotedev(ObservableListStore);
+const RemoteStore = remotedev(ListStore);
 
 // const clearAsyncStorage = async() => {
 //     AsyncStorage.clear();
@@ -64,8 +66,8 @@ const RemoteStore = remotedev(ObservableListStore);
 // clearAsyncStorage().then( data => console.log('success'));
 
 const listStore = new RemoteStore();
-hydrate('some', listStore)
-.then(() => console.log('someStore has been hydrated'))
+hydrate('listStore', listStore)
+.then(() => console.log('listStore has been hydrated'))
 .catch(err => console.log(err));
 
 //export default remotedev(appStore);

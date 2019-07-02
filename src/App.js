@@ -1,7 +1,7 @@
 import React, {Component, createContext} from 'react';
 import Navigator from './Navigator/Navigator';
 import {observer, Provider} from 'mobx-react/index'
-import listStore from './Stores/ObservableStore';
+import stores from './Stores/rootStore';
 import NotifService from "./Utils/NotifService";
 import {Alert} from "react-native";
 
@@ -26,7 +26,7 @@ class App extends Component<Props> {
 
   render() {
     return (
-        <Provider listStore={listStore} notif={this.notif}>
+        <Provider {...stores} notif={this.notif}>
             <Navigator />
         </Provider>
     );

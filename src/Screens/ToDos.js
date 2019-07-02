@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, ScrollView} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
 import listStore from "../Stores/ObservableStore";
-import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
 //import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
 
 @inject('listStore')
@@ -22,12 +21,34 @@ class ToDosScreen extends Component<Props> {
         listStore.loadWeatherGenerator();
     }
 
-    newDog = () => {
-        listStore.loadWeatherGenerator(false);
+    newDog = () => listStore.loadWeatherGenerator(false);
+
+    renderImage = () =>{
+        const {listStore:{dog, isFetching, list, error}, notif} = this.props;
+        if (error) {
+            return (
+                <ScrollView contentContainerStyle={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
+                    <Text>Error</Text>
+                </ScrollView>
+            )
+        }
+
+        return (
+            <ScrollView contentContainerStyle={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
+                { isFetching?
+                    <ActivityIndicator size="large" color="grey" />
+                    :
+                    <Image
+                        style={{width: 300, height: 300}}
+                        source={{uri: dog}}
+                    />
+                }
+            </ScrollView>
+        )
     };
 
     render() {
-        const {listStore:{dog, isFetching, list}, notif} = this.props;
+        const {listStore:{dog, isFetching, list, error}, notif} = this.props;
         return (
             <View style={styles.container}>
                 <View style={{padding: 10}}>
@@ -36,16 +57,7 @@ class ToDosScreen extends Component<Props> {
                         title="Add event"
                         color="#841584"
                     />
-                    <View style={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
-                        { isFetching?
-                            <ActivityIndicator size="large" color="grey" />
-                            :
-                            <Image
-                                style={{width: 300, height: 300}}
-                                source={{uri: dog}}
-                            />
-                        }
-                    </View>
+                    { this.renderImage() }
                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                         <TouchableOpacity onPress={this.newDog}>
                             <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>
