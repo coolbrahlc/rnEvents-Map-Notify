@@ -15,7 +15,6 @@ import remotedev from 'mobx-remotedev';
 
 class ObservableListStore {
     @persist('list') @observable.shallow list = [];
-    //@observable inputText = '';
 
     addListItem (item) {
         //const newToDo = new ToDoItem(item.name, item.geoLocation);
@@ -28,7 +27,7 @@ class ObservableListStore {
 
     editListItem(index, newData) {
         const listCopy = [...this.list];
-        listCopy[index] = {...newData};
+        listCopy[index] = newData;
         this.list = listCopy
     }
 }

@@ -6,9 +6,11 @@ import ToDoForm from '../Components/ToDoForm';
 class EditModal extends React.Component {
 
     render() {
+        const {getParam} = this.props.navigation;
+        const editMode = getParam('editMode');
         return (
             <View style={styles.container}>
-                <ToDoForm {...this.props} editMode={true}/>
+                <ToDoForm {...this.props} editMode={editMode}/>
             </View>
         );
     }

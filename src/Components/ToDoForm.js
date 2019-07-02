@@ -49,8 +49,8 @@ export default class ToDoForm extends Component<Props> {
     };
 
     onSubmit = () =>{
-        const {listStore} = this.props;
-        const {name, geoLocation, description, eventDate} = this.state;
+        const {listStore, navigation:{goBack}} = this.props;
+        const {name, geoLocation, description, eventDate, } = this.state;
         if (name) {
             listStore.addListItem({
                 name,
@@ -64,7 +64,8 @@ export default class ToDoForm extends Component<Props> {
                 geoLocation: null,
                 eventDate: null,
                 mapChecked: false
-            })
+            });
+            goBack();
         } else {
             ToastAndroid.show('Enter event name', ToastAndroid.SHORT);
         }
@@ -72,8 +73,7 @@ export default class ToDoForm extends Component<Props> {
 
     edit = () => {
         const {name, description, geoLocation} = this.state;
-        const {getParam, goBack} = this.props.navigation;
-        const {listStore} = this.props;
+        const {listStore, navigation:{getParam, goBack}} = this.props;
         const id = getParam('id');
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
