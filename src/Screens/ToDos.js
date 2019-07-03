@@ -1,27 +1,31 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, ScrollView} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, Animated} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
-import listStore from "../Stores/ObservableStore";
+//import listStore from "../Stores/ObservableStore";
 //import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
+import {Separator} from '../Components/ListItem';
+
 
 @inject('listStore')
 @inject('notif')
 @observer
 class ToDosScreen extends Component<Props> {
 
-    showEditModal = ({id, name, description, geoLocation, eventDate}) => {
-        this.props.navigation.navigate('EditModal', {id, name, description, geoLocation, eventDate, editMode: true})
+    showEditModal = (props) => {
+        this.props.navigation.navigate('EditModal', {...props, editMode: true})
     };
     showCreateModal = () => {
         this.props.navigation.navigate('EditModal', {editMode: false})
     };
     componentDidMount() {
         const {listStore, notif} = this.props;
-        listStore.loadWeatherGenerator();
+        listStore.loadImage();
     }
 
-    newDog = () => listStore.loadWeatherGenerator(false);
+    newDog = () => {
+        this.props.listStore.loadImage(false)
+    };
 
     renderImage = () =>{
         const {listStore:{dog, isFetching, list, error}, notif} = this.props;
@@ -47,6 +51,13 @@ class ToDosScreen extends Component<Props> {
         )
     };
 
+    onSwipeFromLeft = () =>{
+        Alert.alert('123', 'asd')
+    };
+    onSwipeFromRight = () =>{
+        Alert.alert('123', 'asd')
+    };
+
     render() {
         const {listStore:{dog, isFetching, list, error}, notif} = this.props;
         return (
@@ -63,6 +74,7 @@ class ToDosScreen extends Component<Props> {
                     {/*        <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>*/}
                     {/*    </TouchableOpacity>*/}
                     {/*</View>*/}
+
                     {/*<TouchableOpacity style={styles.button} onPress={() => { notif.localNotif() }}>*/}
                     {/*    <Text>Local Notification (now)</Text>*/}
                     {/*</TouchableOpacity>*/}
@@ -74,11 +86,14 @@ class ToDosScreen extends Component<Props> {
                     data={list}
                     renderItem={({item, index}) => (
                         <ListItem
-                            item={item}
+                            {...item}
                             id={index}
+                            onSwipeFromLeft={this.onSwipeFromLeft}
+                            onSwipeFromRight={this.onSwipeFromRight}
                             navigation={this.props.navigation}
                             showEdit={this.showEditModal}
                         />)}
+                    ItemSeparatorComponent={()=><Separator />}
                     keyExtractor={(item, index) => index.toString()}
                 />
             </View>

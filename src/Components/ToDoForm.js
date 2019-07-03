@@ -55,15 +55,17 @@ export default class ToDoForm extends Component<Props> {
         const {listStore, navigation:{goBack}, notif} = this.props;
         const {name, geoLocation, description, eventDate} = this.state;
         if (name) {
+            let notificationId = null;
+            if (eventDate) {
+                notificationId = notif.scheduleNotif(eventDate, name, description)
+            }
             listStore.addListItem({
                 name,
                 description,
                 geoLocation,
-                eventDate
+                eventDate,
+                notificationId,
             });
-            if (eventDate) {
-                notif.scheduleNotif(eventDate, name, description)
-            }
             this.setState({
                 name:'',
                 description: '',
@@ -79,12 +81,20 @@ export default class ToDoForm extends Component<Props> {
 
     edit = () => {
         const {name, description, geoLocation, eventDate} = this.state;
-        const {listStore, navigation:{getParam, goBack}} = this.props;
+        const {listStore, notif, navigation:{getParam, goBack}} = this.props;
         const id = getParam('id');
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        listStore.editListItem(id, {name, description, geoLocation, eventDate});
+        let notificationId = null;
+        const {getParam} = props.navigation;
+
+        if (getParam('eventDate', new Date()) !== eventDate) {
+            console.log('resceduling notification')
+            notif.removeSceduleNotif(id);
+            notificationId = notif.scheduleNotif(eventDate, name, description)
+        }
+        listStore.editListItem(id, {name, description, geoLocation, eventDate, notificationId});
         goBack();
         return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
     };

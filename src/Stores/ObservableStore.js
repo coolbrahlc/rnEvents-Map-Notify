@@ -1,4 +1,4 @@
-import {observable, action} from 'mobx/lib/mobx'
+import {observable, action, computed} from 'mobx/lib/mobx'
 import { create, persist } from 'mobx-persist'
 import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
@@ -21,6 +21,14 @@ class ListStore {
     @observable isFetching = false;
     @observable error = null;
 
+    // @observable length = 2;
+    // @computed get squared() {
+    //     return this.length * this.length;
+    // }
+    // set squared(value) { //this is automatically an action, no annotation necessary
+    //     this.length = Math.sqrt(value);
+    // }
+
     @action addListItem (item) {
         //const newToDo = new ToDoItem(item.name, item.geoLocation);
         this.list = [...this.list, item];
@@ -36,7 +44,7 @@ class ListStore {
         this.list = listCopy
     }
 
-    loadWeatherGenerator = flow(function* (loader=true) {
+    loadImage = flow(function* (loader=true) {
         this.error = null;
         if (loader){
             this.isFetching = true;
