@@ -4,7 +4,7 @@ import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import {inject, observer} from "mobx-react";
 import RightChevron from '../Images/baseline_chevron_right_black_18dp.png'
-
+import moment from 'moment'
 const LIGHT_GRAY = "#D3D3D3";
 
 @inject('listStore')
@@ -49,7 +49,7 @@ export default class ToDoForm extends Component<Props> {
     };
 
     onSubmit = () =>{
-        const {listStore, navigation:{goBack}, notif} = this.props;
+        const {listStore, navigation:{goBack}} = this.props;
         const {name, geoLocation:{latitude, longitude}, description, notify_at, mapChecked} = this.state;
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
@@ -76,7 +76,7 @@ export default class ToDoForm extends Component<Props> {
 
     edit = () => {
         const {name, mapChecked, description, geoLocation:{latitude, longitude}, notify_at} = this.state;
-        const {listStore, notif, navigation:{getParam, goBack}} = this.props;
+        const {listStore, navigation:{getParam, goBack}} = this.props;
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
@@ -142,11 +142,10 @@ export default class ToDoForm extends Component<Props> {
                     <Text style={{	fontWeight: 'bold'}}>Event time</Text>
                     <TouchableOpacity onPress={()=>this.switchDateTimePicker()}>
                         <Text >
-                            {notify_at.toString().substring(0, 21)}
+                            { moment(notify_at).format('MMMM Do YYYY, H:mm') }
                             <Image source={RightChevron}/>
                         </Text>
                     </TouchableOpacity>
-                    {/*<Button title="Choose date" onPress={this.switchDateTimePicker} />*/}
                     <DateTimePicker
                         isVisible={this.state.showDatepicker}
                         mode={'datetime'}

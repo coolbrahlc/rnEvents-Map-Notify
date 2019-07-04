@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, Animated} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, Animated, RefreshControl} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
 import {Separator} from '../Components/ListItem';
@@ -9,6 +9,13 @@ import {Separator} from '../Components/ListItem';
 @inject('notif')
 @observer
 class ToDosScreen extends Component<Props> {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            isRefreshing: false,
+        }
+    }
 
 
     showEditModal = (props) => {
@@ -36,7 +43,6 @@ class ToDosScreen extends Component<Props> {
                 </View>
             )
         }
-
         return (
             <View style={{flexDirection: 'row', justifyContent: 'center', padding:10}}>
                 { isFetching?
@@ -58,8 +64,25 @@ class ToDosScreen extends Component<Props> {
         Alert.alert('123', 'asd')
     };
 
+    loadMore = () =>{
+        //console.log('MORE MORE MORE')
+        this.props.listStore.fetchEvents();
+    };
+
+    onRefresh = () =>{
+        const {listStore} = this.props;
+
+        listStore.fetchEvents(true);
+
+        // this.setState({isRefreshing: true}, ()=>{
+        //     setTimeout(()=>{
+        //         this.setState({isRefreshing: false});
+        //     }, 2000)
+        // })
+    };
+
     render() {
-        const {listStore:{dog, isFetching, list, error}, notif} = this.props;
+        const {listStore:{dog, isFetching, list, error, fetchEvents}, notif} = this.props;
         return (
             <View style={styles.container}>
                 <View style={{padding: 10}}>
@@ -75,9 +98,14 @@ class ToDosScreen extends Component<Props> {
                     {/*    </TouchableOpacity>*/}
                     {/*</View>*/}
                 </View>
-                { isFetching?
-                    <ActivityIndicator size="large" color="grey" />
-                    :
+                {
+                    error &&
+                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                        <TouchableOpacity onPress={()=>this.props.listStore.fetchEvents()}>
+                            <Text style={{fontSize: 24, fontWeight: 'bold'}}>Try again</Text>
+                        </TouchableOpacity>
+                    </View>
+                }
                     <FlatList
                         data={list}
                         renderItem={({item, index}) => (
@@ -90,8 +118,19 @@ class ToDosScreen extends Component<Props> {
                             />)}
                         ItemSeparatorComponent={()=><Separator />}
                         keyExtractor={item => item.id.toString()}
+                        onEndReached={this.loadMore}
+                        onEndReachedThreshold ={0.3}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.isRefreshing}
+                                onRefresh={this.onRefresh}
+                            />
+                        }
                     />
-                }
+                { isFetching &&
+                <ActivityIndicator size="large" color="grey" />}
+
+
             </View>
         );
     }

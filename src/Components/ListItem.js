@@ -56,34 +56,47 @@ export default class ListItem extends Component<Props> {
 
     render() {
         const {name, description, id, showEdit, onSwipeFromLeft}= this.props;
-        console.log(id, 'rerendered')
         const onSwipeFromRight = () =>{
             this.remove(id)
         };
+        // return (
+        //     <Swipeable
+        //         renderLeftActions={LeftActions}
+        //         renderRightActions={RightActions}
+        //         onSwipeableLeftOpen={onSwipeFromLeft}
+        //         onSwipeableRightOpen={onSwipeFromRight}
+        //     >
+        //         <View style={styles.item}>
+        //             <View style={styles.itemName}>
+        //                 <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{name}</Text>
+        //                 { !!description &&  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text> }
+        //             </View>
+        //             <View style={styles.actionsColumn}>
+        //                 <TouchableOpacity onPress={() => showEdit({...this.props})}>
+        //                     <Text>Edit</Text>
+        //                 </TouchableOpacity>
+        //                 <TouchableOpacity onPress={()=>this.removeAlert(id)}>
+        //                     <Text>Remove</Text>
+        //                 </TouchableOpacity>
+        //             </View>
+        //         </View>
+        //     </Swipeable>
+        // );
         return (
-            <Swipeable
-                renderLeftActions={LeftActions}
-                renderRightActions={RightActions}
-                onSwipeableLeftOpen={onSwipeFromLeft}
-                onSwipeableRightOpen={onSwipeFromRight}
-            >
-                <View style={styles.item}>
-                    <View style={styles.itemName}>
-                        <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{name}</Text>
-                        { !!description &&  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text> }
-                    </View>
-                    <View style={styles.actionsColumn}>
-                        <TouchableOpacity onPress={() => showEdit({...this.props})}>
-                            <Text>Edit</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>this.removeAlert(id)}>
-                            <Text>Remove</Text>
-                        </TouchableOpacity>
-                    </View>
+            <View style={styles.item}>
+                <View style={styles.itemName}>
+                    <Text ellipsizeMode='tail' numberOfLines={1} style={styles.name}>{name}</Text>
+                    { !!description &&  <Text ellipsizeMode='tail' numberOfLines={1} style={styles.description}>{description}</Text> }
                 </View>
-
-            </Swipeable>
-
+                <View style={styles.actionsColumn}>
+                    <TouchableOpacity onPress={() => showEdit({...this.props})}>
+                        <Text>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>this.removeAlert(id)}>
+                        <Text>Remove</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
         );
     }
 }
@@ -98,7 +111,7 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingLeft: 20,
         fontSize: 20,
-        height: 60,
+        height: 120,
     },
     itemName: {
         width: '60%',

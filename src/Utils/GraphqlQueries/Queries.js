@@ -11,8 +11,8 @@ export const insertToDo = gql`
 `;
 
 export const fetchToDos = gql`
-    {
-      todo_kmudrevskiy {
+    query todo_kmudrevskiy($offset: Int, $limit: Int) {
+      todo_kmudrevskiy(limit: $limit, offset: $offset, order_by: {created_at: desc}) {
         id
         latitude
         longitude
@@ -25,7 +25,7 @@ export const fetchToDos = gql`
 `;
 
 export const removeToDo =  gql`
-        mutation delete_todo_kmudrevskiy($id: Int) {
+    mutation delete_todo_kmudrevskiy($id: Int) {
       delete_todo_kmudrevskiy(where: {id: {_eq: $id}}) {
         affected_rows
       }

@@ -7,13 +7,15 @@ import axios from 'axios';
 import ApolloClient from "apollo-boost";
 import {insertToDo, fetchToDos, removeToDo, editToDo} from "../Utils/GraphqlQueries/Queries"
 import {ToastAndroid} from "react-native";
+import config from '../Utils/config'
 
 const client = new ApolloClient({
-    uri: "http://10.1.1.127:8080/v1/graphql",
+    uri: config.GRAPHQL_URI,
     headers: {
-        "x-hasura-admin-secret": "1qaz2w3e4r"
+        "x-hasura-admin-secret": config.GRAPHQL_SECRET,
     }
 });
+
 
 
 class ToDosStore {
@@ -22,6 +24,12 @@ class ToDosStore {
     @observable isFetching = false;
     @observable error = null;
 
+    // client = new ApolloClient({
+    //     uri: config.GRAPHQL_URI,
+    //     headers: {
+    //         "x-hasura-admin-secret": config.GRAPHQL_SECRET,
+    //     }
+    // });
 
     @action addListItem (item) {
         client
@@ -37,19 +45,34 @@ class ToDosStore {
         .catch(err=> console.log(err));
     }
 
-    @action fetchEvents () {
-        this.isFetching = true;
+    @action fetchEvents (fromStart=false) {
+        if (this.list.length%8 !== 0 ) {
+            return null
+        }
+        this.isFetching = !fromStart && true;
+        this.error = null;
         client
         .query({
-            query: fetchToDos
+            query: fetchToDos,
+            variables: {
+                limit: 8,
+                offset: fromStart ? 0: this.list.length
+            },
+            fetchPolicy: "network-only",
         })
         .then(({data: {todo_kmudrevskiy}}) => {
             this.isFetching = false;
-            this.list = todo_kmudrevskiy;
+            if (fromStart) {
+                this.list = todo_kmudrevskiy;
+            } else {
+                this.list = [...this.list, ...todo_kmudrevskiy];
+            }
         })
         .catch(err=> {
             console.log(err);
             this.isFetching = false;
+            this.error = true;
+            ToastAndroid.show('Server not responding', ToastAndroid.LONG);
         });
 
     }

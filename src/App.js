@@ -4,7 +4,8 @@ import {observer, Provider} from 'mobx-react/index'
 import stores from './Stores/rootStore';
 import NotifService from "./Utils/NotifService";
 import {Alert} from "react-native";
-
+import { YellowBox } from 'react-native';
+YellowBox.ignoreWarnings(['Remote debugger']);
 
 @observer
 class App extends Component<Props> {
