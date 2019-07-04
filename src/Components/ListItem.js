@@ -54,6 +54,7 @@ export default class ListItem extends Component<Props> {
 
     render() {
         const {name, description, id, showEdit, onSwipeFromLeft}= this.props;
+        console.log(id, 'rerendered')
         const onSwipeFromRight = () =>{
             this.remove(id)
         };

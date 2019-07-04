@@ -77,23 +77,26 @@ export default class ToDoForm extends Component<Props> {
 
     edit = () => {
         const {name, mapChecked, description, geoLocation:{latitude, longitude}, notify_at} = this.state;
-        console.log(latitude, longitude, 'coordinates')
         const {listStore, notif, navigation:{getParam, goBack}} = this.props;
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-
-        let notificationId = null;
-        if (getParam('notify_at', new Date()) !== notify_at) {
-            const notifId = getParam('notificationId');
-            notif.removeSceduleNotif(notifId);
-            notificationId = notif.scheduleNotif(notify_at, name, description)
-        }
+        // let notificationId = null;
+        // if (getParam('notify_at', new Date()) !== notify_at) {
+        //     const notifId = getParam('notificationId');
+        //     notif.removeSceduleNotif(notifId);
+        //     notificationId = notif.scheduleNotif(notify_at, name, description)
+        // }
         const id = getParam('id');
-        listStore.editListItem(id, {name, description, latitude, longitude, notify_at, notificationId, toggle_map_points:mapChecked});
-
+        listStore.editListItem(id, {
+            name,
+            description,
+            latitude,
+            longitude,
+            notify_at,
+            toggle_map_points:mapChecked
+        });
         goBack();
-        return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
     };
 
     renderMap = () => {

@@ -31,3 +31,14 @@ export const removeToDo =  gql`
       }
     }
 `;
+
+export const editToDo = gql`
+    mutation update_todo_kmudrevskiy($description: String, $id:Int, $name: String, $notify_at: timestamp, $toggle_map_points: Boolean, $latitude: float8, $longitude: float8) {
+      update_todo_kmudrevskiy(where: {id: {_eq: $id}}, _set: {description: $description, name: $name, notify_at: $notify_at, toggle_map_points: $toggle_map_points, latitude: $latitude, longitude: $longitude}) {
+        affected_rows
+        returning {
+          name
+        }
+      }
+    }
+`;

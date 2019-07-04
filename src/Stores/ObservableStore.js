@@ -5,7 +5,7 @@ import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";
 import axios from 'axios';
 import ApolloClient from "apollo-boost";
-import {insertToDo, fetchToDos, removeToDo} from "../Utils/GraphqlQueries/Queries"
+import {insertToDo, fetchToDos, removeToDo, editToDo} from "../Utils/GraphqlQueries/Queries"
 import {ToastAndroid} from "react-native";
 
 const client = new ApolloClient({
@@ -60,7 +60,7 @@ class ListStore {
             variables: {id},
         })
         .then(({data: {delete_todo_kmudrevskiy: {affected_rows}}}) => {
-            if (affected_rows !== 0) {
+            if (affected_rows === 1) {
                 this.list = this.list.filter(item => item.id !== id);
                 ToastAndroid.show('Removed', ToastAndroid.LONG);
             }
@@ -68,10 +68,24 @@ class ListStore {
         .catch(err=> console.log(err));
     }
 
-    @action editListItem(index, newData) {
-        const listCopy = [...this.list];
-        listCopy[index] = newData;
-        this.list = listCopy
+    @action editListItem(id, newData) {
+        client
+        .mutate({
+            mutation: editToDo,
+            variables: {id, ...newData},
+        })
+        .then(({data: {update_todo_kmudrevskiy: {affected_rows}}}) => {
+            if (affected_rows === 1) {
+                this.list = this.list.map(item =>{
+                    if (item.id === id) {
+                        return {...item, ...newData}
+                    }
+                    return item
+                });
+                ToastAndroid.show('Edited', ToastAndroid.LONG);
+            }
+        })
+        .catch(err=> console.log(err));
     }
 
     // loadImage = flow(function* (loader=true) {
