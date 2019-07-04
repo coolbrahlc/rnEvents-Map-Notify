@@ -2,9 +2,10 @@ import React, {Component} from 'react';
 import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, Animated} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
-//import listStore from "../Stores/ObservableStore";
-//import RightChevron from "../Images/baseline_chevron_right_black_18dp.png";
 import {Separator} from '../Components/ListItem';
+import ApolloClient from "apollo-boost";
+import { gql } from "apollo-boost";
+
 
 
 @inject('listStore')
@@ -19,8 +20,8 @@ class ToDosScreen extends Component<Props> {
         this.props.navigation.navigate('EditModal', {editMode: false})
     };
     componentDidMount() {
-        const {listStore, notif} = this.props;
-        listStore.loadImage();
+        const {listStore} = this.props;
+        listStore.fetchEvents();
     }
 
     newDog = () => {
@@ -82,20 +83,24 @@ class ToDosScreen extends Component<Props> {
                     {/*    <Text>Schedule Notification in 3s</Text>*/}
                     {/*</TouchableOpacity>*/}
                 </View>
-                <FlatList
-                    data={list}
-                    renderItem={({item, index}) => (
-                        <ListItem
-                            {...item}
-                            id={index}
-                            onSwipeFromLeft={this.onSwipeFromLeft}
-                            onSwipeFromRight={this.onSwipeFromRight}
-                            navigation={this.props.navigation}
-                            showEdit={this.showEditModal}
-                        />)}
-                    ItemSeparatorComponent={()=><Separator />}
-                    keyExtractor={(item, index) => index.toString()}
-                />
+
+                { isFetching?
+                    <ActivityIndicator size="large" color="grey" />
+                    :
+                    <FlatList
+                        data={list}
+                        renderItem={({item, index}) => (
+                            <ListItem
+                                {...item}
+                                onSwipeFromLeft={this.onSwipeFromLeft}
+                                onSwipeFromRight={this.onSwipeFromRight}
+                                navigation={this.props.navigation}
+                                showEdit={this.showEditModal}
+                            />)}
+                        ItemSeparatorComponent={()=><Separator />}
+                        keyExtractor={(item, index) => index.toString()}
+                    />
+                }
             </View>
         );
     }
@@ -104,7 +109,7 @@ class ToDosScreen extends Component<Props> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         flexDirection: 'column',
         paddingTop: 22,
         backgroundColor: '#EAEDF2',

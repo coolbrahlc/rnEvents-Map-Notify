@@ -19,19 +19,19 @@ export default class ToDoForm extends Component<Props> {
         this.state = {
             name: getParam('name', ''),
             description: getParam('description', ''),
-            eventDate: getParam('eventDate', new Date()),
-            geoLocation: getParam('geoLocation', null),
+            notify_at: getParam('notify_at', new Date()),
+            geoLocation: getParam('geoLocation', {}),
             showDatepicker: false,
-            mapChecked: !!getParam('geoLocation', ''),
+            mapChecked: getParam('toggle_map_points', false),
         }
     }
     switchMapCheckboox = () =>{
         if (this.state.mapChecked) {
              return this.setState({
-                mapChecked: false,
-                geoLocation: null
-            });
 
+                 mapChecked: false,
+                 geoLocation: {}
+            });
         }
         this.setState({mapChecked: true});
     };
@@ -41,77 +41,82 @@ export default class ToDoForm extends Component<Props> {
     };
 
     switchDateTimePicker = () => {
-        console.log(this.state.showDatepicker)
         this.setState({ showDatepicker: !this.state.showDatepicker });
     };
 
     handleDatePicked = date => {
-        this.setState({ eventDate: date });
-        console.log("A date has been picked: ", date, typeof date);
+        this.setState({ notify_at: date });
         this.switchDateTimePicker();
     };
 
     onSubmit = () =>{
         const {listStore, navigation:{goBack}, notif} = this.props;
-        const {name, geoLocation, description, eventDate} = this.state;
-        if (name) {
-            let notificationId = null;
-            if (eventDate) {
-                notificationId = notif.scheduleNotif(eventDate, name, description)
-            }
-            listStore.addListItem({
-                name,
-                description,
-                geoLocation,
-                eventDate,
-                notificationId,
-            });
-            this.setState({
-                name:'',
-                description: '',
-                geoLocation: null,
-                eventDate: new Date(),
-                mapChecked: false,
-            });
-            goBack();
-        } else {
-            ToastAndroid.show('Enter event name', ToastAndroid.SHORT);
-        }
-    };
-
-    edit = () => {
-        const {name, description, geoLocation, eventDate} = this.state;
-        const {listStore, notif, navigation:{getParam, goBack}} = this.props;
-        const id = getParam('id');
+        const {name, geoLocation:{latitude, longitude}, description, notify_at, mapChecked} = this.state;
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        let notificationId = null;
-        const {getParam} = props.navigation;
+        listStore.addListItem(notif, {
+            name,
+            description,
+            latitude,
+            longitude,
+            notify_at,
+            toggle_map_points: mapChecked,
+            created_at: new Date(),
+        });
+        this.setState({
+            name:'',
+            description: '',
+            geoLocation: {},
+            notify_at: new Date(),
+            mapChecked: false,
+        });
+        goBack();
 
-        if (getParam('eventDate', new Date()) !== eventDate) {
-            console.log('resceduling notification')
-            notif.removeSceduleNotif(id);
-            notificationId = notif.scheduleNotif(eventDate, name, description)
+    };
+
+    edit = () => {
+        const {name, mapChecked, description, geoLocation:{latitude, longitude}, notify_at} = this.state;
+        console.log(latitude, longitude, 'coordinates')
+        const {listStore, notif, navigation:{getParam, goBack}} = this.props;
+        if (name.length === 0) {
+            return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        listStore.editListItem(id, {name, description, geoLocation, eventDate, notificationId});
+
+        let notificationId = null;
+        if (getParam('notify_at', new Date()) !== notify_at) {
+            const notifId = getParam('notificationId');
+            notif.removeSceduleNotif(notifId);
+            notificationId = notif.scheduleNotif(notify_at, name, description)
+        }
+        const id = getParam('id');
+        listStore.editListItem(id, {name, description, latitude, longitude, notify_at, notificationId, toggle_map_points:mapChecked});
+
         goBack();
         return ToastAndroid.show('Edited!', ToastAndroid.SHORT);
     };
 
     renderMap = () => {
+        const {getParam} = this.props.navigation;
+
+        console.log('renderMap !', getParam('toggle_map_points', ''));
+
         const {mapChecked, geoLocation} = this.state;
         if (mapChecked) {
+
+            const latitude = getParam('latitude', 37.78825);
+            const longitude = getParam('longitude', -122.4324);
+
             return (
                 <View style={{height: 200, margin: 10}}>
-                    <Map saveLocation={this.saveLocation} geoLocation={geoLocation} editMode={true}/>
+                    <Map saveLocation={this.saveLocation} geoLocation={{latitude, longitude}} editMode={true}/>
                 </View>
             )
         }
     };
 
     render() {
-        const {eventDate, mapChecked, showDatepicker} = this.state;
+        const {notify_at, mapChecked} = this.state;
         const {editMode} = this.props;
         return (
             <View style={styles.card}>
@@ -140,7 +145,7 @@ export default class ToDoForm extends Component<Props> {
                     <Text style={{	fontWeight: 'bold'}}>Event time</Text>
                     <TouchableOpacity onPress={()=>this.switchDateTimePicker()}>
                         <Text >
-                            {eventDate.toString().substring(0, 21)}
+                            {notify_at.toString().substring(0, 21)}
                             <Image source={RightChevron}/>
                         </Text>
                     </TouchableOpacity>
@@ -154,7 +159,7 @@ export default class ToDoForm extends Component<Props> {
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 10}}>
                     {
-                        this.props.editMode ?
+                        editMode ?
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
                             <Button
                                 onPress={() => this.props.navigation.goBack()}

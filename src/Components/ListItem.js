@@ -47,9 +47,8 @@ export default class ListItem extends Component<Props> {
         );
     };
 
-    remove = (index) => {
-        this.props.listStore.removeListItem(index);
-        return ToastAndroid.show('Removed', ToastAndroid.LONG);
+    remove = (id) => {
+        this.props.listStore.removeListItem(id);
     };
 
 
@@ -58,7 +57,6 @@ export default class ListItem extends Component<Props> {
         const onSwipeFromRight = () =>{
             this.remove(id)
         };
-
         return (
             <Swipeable
                 renderLeftActions={LeftActions}

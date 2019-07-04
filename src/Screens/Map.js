@@ -19,7 +19,7 @@ class Map extends Component<Props> {
     constructor(props) {
         super(props);
         this.state = {
-            region: props.geoLocation ? props.geoLocation : defaultMap,
+            region: {...props.geoLocation, latitudeDelta, longitudeDelta} ,
         };
     }
     onRegionChange = (region) => {
@@ -33,6 +33,7 @@ class Map extends Component<Props> {
         const {editMode, listStore} = this.props;
         const {latitude, longitude} = this.state.region;
         if (editMode) {
+            console.log('edit mode!')
             return (
                 <View style={styles.container}>
                     <MapView

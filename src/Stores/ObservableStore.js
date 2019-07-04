@@ -4,16 +4,17 @@ import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";
 import axios from 'axios';
+import ApolloClient from "apollo-boost";
+import {insertToDo, fetchToDos, removeToDo} from "../Utils/GraphqlQueries/Queries"
+import {ToastAndroid} from "react-native";
 
-// class ToDoItem {
-//     @observable name;
-//     @observable geoLocation;
-//
-//     constructor(name, geoLocation) {
-//         this.name = name;
-//         this.geoLocation = geoLocation;
-//     }
-// }
+const client = new ApolloClient({
+    uri: "http://10.1.1.127:8080/v1/graphql",
+    headers: {
+        "x-hasura-admin-secret": "1qaz2w3e4r"
+    }
+});
+
 
 class ListStore {
     @persist('list') @observable.shallow list = [];
@@ -21,21 +22,50 @@ class ListStore {
     @observable isFetching = false;
     @observable error = null;
 
-    // @observable length = 2;
-    // @computed get squared() {
-    //     return this.length * this.length;
-    // }
-    // set squared(value) { //this is automatically an action, no annotation necessary
-    //     this.length = Math.sqrt(value);
-    // }
+    @action addListItem (notif, item) {
+        client
+        .mutate({
+            mutation: insertToDo,
+            variables: item,
+        })
+        .then(({data: {insert_todo_kmudrevskiy: {returning}}}) => {
+            item.id = returning[0].id;
+            notif.scheduleNotif(item);
+            this.list = [...this.list, item];
+        })
+        .catch(err=> console.log(err));
+    }
 
-    @action addListItem (item) {
-        //const newToDo = new ToDoItem(item.name, item.geoLocation);
-        this.list = [...this.list, item];
+    @action fetchEvents () {
+        this.isFetching = true;
+        client
+        .query({
+            query: fetchToDos
+        })
+        .then(({data: {todo_kmudrevskiy}}) => {
+            this.isFetching = false;
+            this.list = todo_kmudrevskiy;
+        })
+        .catch(err=> {
+            console.log(err);
+            this.isFetching = false;
+        });
+
     }
 
     @action removeListItem (id) {
-        this.list = this.list.filter((item, index) => id !== index)
+        client
+        .mutate({
+            mutation: removeToDo,
+            variables: {id},
+        })
+        .then(({data: {delete_todo_kmudrevskiy: {affected_rows}}}) => {
+            if (affected_rows !== 0) {
+                this.list = this.list.filter(item => item.id !== id);
+                ToastAndroid.show('Removed', ToastAndroid.LONG);
+            }
+        })
+        .catch(err=> console.log(err));
     }
 
     @action editListItem(index, newData) {
@@ -44,21 +74,21 @@ class ListStore {
         this.list = listCopy
     }
 
-    loadImage = flow(function* (loader=true) {
-        this.error = null;
-        if (loader){
-            this.isFetching = true;
-        }
-        try {
-            const {data: {message}} = yield axios.get(`https://dog.ceo/api/breeds/image/random`);
-            this.isFetching = false;
-            this.dog = message;
-        } catch (error) {
-            console.log(error, 'err')
-            this.isFetching = false;
-            this.error = "error"
-        }
-    });
+    // loadImage = flow(function* (loader=true) {
+    //     this.error = null;
+    //     if (loader){
+    //         this.isFetching = true;
+    //     }
+    //     try {
+    //         const {data: {message}} = yield axios.get(`https://dog.ceo/api/breeds/image/random`);
+    //         this.isFetching = false;
+    //         this.dog = message;
+    //     } catch (error) {
+    //         console.log(error, 'err')
+    //         this.isFetching = false;
+    //         this.error = "error"
+    //     }
+    // });
 }
 
 const hydrate = create({
@@ -74,9 +104,9 @@ const RemoteStore = remotedev(ListStore);
 // clearAsyncStorage().then( data => console.log('success'));
 
 const listStore = new RemoteStore();
-hydrate('listStore', listStore)
-.then(() => console.log('listStore has been hydrated'))
-.catch(err => console.log(err));
+// hydrate('listStore', listStore)
+// .then(() => console.log('listStore has been hydrated'))
+// .catch(err => console.log(err));
 
 //export default remotedev(appStore);
 
