@@ -1,6 +1,5 @@
 import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Image, TextInput, Button, Switch} from "react-native";
 import React, {Component} from 'react';
-//import {CheckBox} from "native-base";
 import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import {inject, observer} from "mobx-react";
@@ -55,7 +54,7 @@ export default class ToDoForm extends Component<Props> {
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        listStore.addListItem(notif, {
+        listStore.addListItem({
             name,
             description,
             latitude,
@@ -81,14 +80,13 @@ export default class ToDoForm extends Component<Props> {
         if (name.length === 0) {
             return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
         }
-        // let notificationId = null;
-        // if (getParam('notify_at', new Date()) !== notify_at) {
-        //     const notifId = getParam('notificationId');
-        //     notif.removeSceduleNotif(notifId);
-        //     notificationId = notif.scheduleNotif(notify_at, name, description)
-        // }
+        let reschedule = false;
+        if (getParam('notify_at', new Date()) !== notify_at) {
+            reschedule = true
+        }
         const id = getParam('id');
-        listStore.editListItem(id, {
+        listStore.editListItem(reschedule, id, {
+            id,
             name,
             description,
             latitude,
@@ -101,18 +99,14 @@ export default class ToDoForm extends Component<Props> {
 
     renderMap = () => {
         const {getParam} = this.props.navigation;
-
-        console.log('renderMap !', getParam('toggle_map_points', ''));
-
-        const {mapChecked, geoLocation} = this.state;
+        const {mapChecked} = this.state;
         if (mapChecked) {
-
-            const latitude = getParam('latitude', 37.78825);
-            const longitude = getParam('longitude', -122.4324);
-
+            const haveGeo = getParam('toggle_map_points', false);
+            const latitude = getParam('latitude');
+            const longitude = getParam('longitude');
             return (
                 <View style={{height: 200, margin: 10}}>
-                    <Map saveLocation={this.saveLocation} geoLocation={{latitude, longitude}} editMode={true}/>
+                    <Map saveLocation={this.saveLocation} geoLocation={{latitude, longitude}} haveGeo={haveGeo} editMode={true}/>
                 </View>
             )
         }

@@ -3,15 +3,13 @@ import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
 import {Separator} from '../Components/ListItem';
-import ApolloClient from "apollo-boost";
-import { gql } from "apollo-boost";
-
 
 
 @inject('listStore')
 @inject('notif')
 @observer
 class ToDosScreen extends Component<Props> {
+
 
     showEditModal = (props) => {
         this.props.navigation.navigate('EditModal', {...props, editMode: true})
@@ -20,7 +18,8 @@ class ToDosScreen extends Component<Props> {
         this.props.navigation.navigate('EditModal', {editMode: false})
     };
     componentDidMount() {
-        const {listStore} = this.props;
+        const {listStore, notif} = this.props;
+        listStore.notif = notif;
         listStore.fetchEvents();
     }
 
@@ -75,15 +74,7 @@ class ToDosScreen extends Component<Props> {
                     {/*        <Text style={{fontSize: 24, fontWeight: 'bold'}}>New dog</Text>*/}
                     {/*    </TouchableOpacity>*/}
                     {/*</View>*/}
-
-                    {/*<TouchableOpacity style={styles.button} onPress={() => { notif.localNotif() }}>*/}
-                    {/*    <Text>Local Notification (now)</Text>*/}
-                    {/*</TouchableOpacity>*/}
-                    {/*<TouchableOpacity style={styles.button} onPress={() => { notif.scheduleNotif() }}>*/}
-                    {/*    <Text>Schedule Notification in 3s</Text>*/}
-                    {/*</TouchableOpacity>*/}
                 </View>
-
                 { isFetching?
                     <ActivityIndicator size="large" color="grey" />
                     :
@@ -98,7 +89,7 @@ class ToDosScreen extends Component<Props> {
                                 showEdit={this.showEditModal}
                             />)}
                         ItemSeparatorComponent={()=><Separator />}
-                        keyExtractor={(item, index) => index.toString()}
+                        keyExtractor={item => item.id.toString()}
                     />
                 }
             </View>
@@ -124,7 +115,6 @@ const styles = StyleSheet.create({
 export default ToDosScreen;
 
 /*
-    alignItems: 'center',
     fontSize: 20,
     textAlign: 'center',
 */

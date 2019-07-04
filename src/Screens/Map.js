@@ -19,7 +19,7 @@ class Map extends Component<Props> {
     constructor(props) {
         super(props);
         this.state = {
-            region:  props.geoLocation.latitude? {...props.geoLocation, latitudeDelta, longitudeDelta} : defaultMap ,
+            region: props.haveGeo ? {...defaultMap, ...props.geoLocation} : defaultMap,
         };
     }
     onRegionChange = (region) => {
@@ -51,7 +51,7 @@ class Map extends Component<Props> {
                 </View>
             )
         } else {
-            const markers = listStore.list.filter(item=> item.geoLocation !== null);
+            const markers = listStore.list.filter(item=> item.toggle_map_points !== false);
             return (
                 <View style={styles.container}>
                     <MapView
@@ -60,16 +60,21 @@ class Map extends Component<Props> {
                         region={this.state.region}
                         onRegionChangeComplete={this.onRegionChange}
                     >
-                        {markers.map((item, index) => (
-                            <View>
-                                <Marker
-                                    onPress={()=>Alert.alert('123')}
-                                    coordinate={item.geoLocation}
-                                    title={item.name}
-                                    description={item.name}
-                                />
-                            </View>
-                        ))}
+                        {
+                            markers.map((item, index) => {
+                                const {latitude, longitude, name, description} = item;
+                                return (
+                                    <View>
+                                        <Marker
+                                            onPress={()=>Alert.alert(name, description)}
+                                            coordinate={{latitude, longitude, latitudeDelta, longitudeDelta}}
+                                            title={name}
+                                            description={description}
+                                        />
+                                    </View>
+                                )
+                            }
+                        )}
                     </MapView>
                 </View>
             )

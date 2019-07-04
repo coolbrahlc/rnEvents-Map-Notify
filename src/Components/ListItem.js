@@ -27,6 +27,8 @@ const RightActions = (progress, dragX) =>{
 
 export const Separator = () => <View style={styles.separator} />;
 
+
+@inject('notif')
 @inject('listStore')
 @observer
 export default class ListItem extends Component<Props> {
@@ -90,24 +92,13 @@ export default class ListItem extends Component<Props> {
 const styles = StyleSheet.create({
     item: {
         backgroundColor: 'white',
-        //margin:10,
-        marginTop:0,
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 10,
+        paddingLeft: 20,
         fontSize: 20,
         height: 60,
-        //borderBottomColor: 'grey',
-        //borderBottomWidth: 1,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-        elevation: 3,
     },
     itemName: {
         width: '60%',

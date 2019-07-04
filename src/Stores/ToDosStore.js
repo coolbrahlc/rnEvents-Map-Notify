@@ -16,13 +16,14 @@ const client = new ApolloClient({
 });
 
 
-class ListStore {
+class ToDosStore {
     @persist('list') @observable.shallow list = [];
     @observable dog = null;
     @observable isFetching = false;
     @observable error = null;
 
-    @action addListItem (notif, item) {
+
+    @action addListItem (item) {
         client
         .mutate({
             mutation: insertToDo,
@@ -30,7 +31,7 @@ class ListStore {
         })
         .then(({data: {insert_todo_kmudrevskiy: {returning}}}) => {
             item.id = returning[0].id;
-            notif.scheduleNotif(item);
+            this.notif.scheduleNotif(item);
             this.list = [...this.list, item];
         })
         .catch(err=> console.log(err));
@@ -61,6 +62,7 @@ class ListStore {
         })
         .then(({data: {delete_todo_kmudrevskiy: {affected_rows}}}) => {
             if (affected_rows === 1) {
+                this.notif.removeSceduleNotif(id);
                 this.list = this.list.filter(item => item.id !== id);
                 ToastAndroid.show('Removed', ToastAndroid.LONG);
             }
@@ -68,7 +70,7 @@ class ListStore {
         .catch(err=> console.log(err));
     }
 
-    @action editListItem(id, newData) {
+    @action editListItem(reschedule, id, newData) {
         client
         .mutate({
             mutation: editToDo,
@@ -76,6 +78,10 @@ class ListStore {
         })
         .then(({data: {update_todo_kmudrevskiy: {affected_rows}}}) => {
             if (affected_rows === 1) {
+                if (reschedule) {
+                    this.notif.removeSceduleNotif(id);
+                    this.notif.scheduleNotif({id, ...newData});
+                }
                 this.list = this.list.map(item =>{
                     if (item.id === id) {
                         return {...item, ...newData}
@@ -110,18 +116,18 @@ const hydrate = create({
     jsonify: true,
 });
 
-const RemoteStore = remotedev(ListStore);
+const RemoteStore = remotedev(ToDosStore);
 
 // const clearAsyncStorage = async() => {
 //     AsyncStorage.clear();
 // };
 // clearAsyncStorage().then( data => console.log('success'));
 
-const listStore = new RemoteStore();
+const toDosStore = new RemoteStore();
 // hydrate('listStore', listStore)
 // .then(() => console.log('listStore has been hydrated'))
 // .catch(err => console.log(err));
 
 //export default remotedev(appStore);
 
-export default listStore
+export default toDosStore

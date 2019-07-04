@@ -1,5 +1,5 @@
-import observableStore from './ObservableStore'
+import toDosStore from './ToDosStore'
 
 export default {
-    listStore: observableStore,
+    listStore: toDosStore,
 }
