@@ -17,7 +17,6 @@ class ToDosScreen extends Component<Props> {
         }
     }
 
-
     showEditModal = (props) => {
         this.props.navigation.navigate('EditModal', {...props, editMode: true})
     };
@@ -65,20 +64,12 @@ class ToDosScreen extends Component<Props> {
     };
 
     loadMore = () =>{
-        //console.log('MORE MORE MORE')
-        this.props.listStore.fetchEvents();
+        console.log('more')
+        this.props.listStore.fetchMore();
     };
 
     onRefresh = () =>{
-        const {listStore} = this.props;
-
-        listStore.fetchEvents(true);
-
-        // this.setState({isRefreshing: true}, ()=>{
-        //     setTimeout(()=>{
-        //         this.setState({isRefreshing: false});
-        //     }, 2000)
-        // })
+        this.props.listStore.fetchEvents();
     };
 
     render() {
@@ -127,10 +118,7 @@ class ToDosScreen extends Component<Props> {
                             />
                         }
                     />
-                { isFetching &&
-                <ActivityIndicator size="large" color="grey" />}
-
-
+                { isFetching && <ActivityIndicator size="large" color="grey" />}
             </View>
         );
     }

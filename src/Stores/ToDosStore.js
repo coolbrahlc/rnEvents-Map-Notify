@@ -23,13 +23,7 @@ class ToDosStore {
     @observable dog = null;
     @observable isFetching = false;
     @observable error = null;
-
-    // client = new ApolloClient({
-    //     uri: config.GRAPHQL_URI,
-    //     headers: {
-    //         "x-hasura-admin-secret": config.GRAPHQL_SECRET,
-    //     }
-    // });
+    haveMore = true;
 
     @action addListItem (item) {
         client
@@ -40,72 +34,89 @@ class ToDosStore {
         .then(({data: {insert_todo_kmudrevskiy: {returning}}}) => {
             item.id = returning[0].id;
             this.notif.scheduleNotif(item);
-            this.list = [...this.list, item];
+            this.list = [item, ...this.list];
         })
         .catch(err=> console.log(err));
     }
 
-    @action fetchEvents (fromStart=false) {
-        if (this.list.length%8 !== 0 ) {
-            return null
-        }
-        this.isFetching = !fromStart && true;
+    @action async fetchEvents () {
+        this.isFetching = true;
         this.error = null;
-        client
-        .query({
-            query: fetchToDos,
-            variables: {
-                limit: 8,
-                offset: fromStart ? 0: this.list.length
-            },
-            fetchPolicy: "network-only",
-        })
-        .then(({data: {todo_kmudrevskiy}}) => {
+        this.haveMore = true;
+        try {
+            const {data: {todo_kmudrevskiy}} = await client.query({
+                query: fetchToDos,
+                variables: {
+                    limit: config.LIMIT,
+                    offset: 0
+                },
+                fetchPolicy: "network-only",
+            });
             this.isFetching = false;
-            if (fromStart) {
-                this.list = todo_kmudrevskiy;
-            } else {
-                this.list = [...this.list, ...todo_kmudrevskiy];
-            }
-        })
-        .catch(err=> {
-            console.log(err);
+            this.list = todo_kmudrevskiy;
+        } catch (err) {
             this.isFetching = false;
-            this.error = true;
+            this.error = err;
             ToastAndroid.show('Server not responding', ToastAndroid.LONG);
-        });
-
+        }
     }
 
-    @action removeListItem (id) {
-        client
-        .mutate({
-            mutation: removeToDo,
-            variables: {id},
-        })
-        .then(({data: {delete_todo_kmudrevskiy: {affected_rows}}}) => {
+    @action async fetchMore () {
+        if (!this.haveMore) {
+            return
+        }
+        this.isFetching = true;
+        this.error = null;
+        try {
+            const {data: {todo_kmudrevskiy}} = await client.query({
+                query: fetchToDos,
+                variables: {
+                    limit: config.LIMIT,
+                    offset: this.list.length,
+                },
+                fetchPolicy: "network-only",
+            });
+            this.isFetching = false;
+            if (todo_kmudrevskiy.length === 0) {
+                this.haveMore = false
+            }
+            this.list = [...this.list, ...todo_kmudrevskiy];
+        } catch (err) {
+            this.isFetching = false;
+            this.error = err;
+            ToastAndroid.show('Server not responding', ToastAndroid.LONG);
+        }
+    }
+
+    @action async removeListItem (id) {
+        try {
+            const {data: {delete_todo_kmudrevskiy: {affected_rows}}} = await client.mutate({
+                mutation: removeToDo,
+                variables: {id},
+            });
             if (affected_rows === 1) {
                 this.notif.removeSceduleNotif(id);
                 this.list = this.list.filter(item => item.id !== id);
                 ToastAndroid.show('Removed', ToastAndroid.LONG);
             }
-        })
-        .catch(err=> console.log(err));
+        } catch (e) {
+            console.log(e)
+        }
     }
 
-    @action editListItem(reschedule, id, newData) {
-        client
-        .mutate({
-            mutation: editToDo,
-            variables: {id, ...newData},
-        })
-        .then(({data: {update_todo_kmudrevskiy: {affected_rows}}}) => {
+    editListItem = flow(function* (reschedule, id, newData) {
+        try {
+            const res = yield client.mutate({
+                mutation: editToDo,
+                variables: {id, ...newData},
+            });
+            const {data: {update_todo_kmudrevskiy: {affected_rows}}} = res;
             if (affected_rows === 1) {
                 if (reschedule) {
                     this.notif.removeSceduleNotif(id);
                     this.notif.scheduleNotif({id, ...newData});
                 }
-                this.list = this.list.map(item =>{
+                this.list = this.list.map(item => {
                     if (item.id === id) {
                         return {...item, ...newData}
                     }
@@ -113,25 +124,10 @@ class ToDosStore {
                 });
                 ToastAndroid.show('Edited', ToastAndroid.LONG);
             }
-        })
-        .catch(err=> console.log(err));
-    }
-
-    // loadImage = flow(function* (loader=true) {
-    //     this.error = null;
-    //     if (loader){
-    //         this.isFetching = true;
-    //     }
-    //     try {
-    //         const {data: {message}} = yield axios.get(`https://dog.ceo/api/breeds/image/random`);
-    //         this.isFetching = false;
-    //         this.dog = message;
-    //     } catch (error) {
-    //         console.log(error, 'err')
-    //         this.isFetching = false;
-    //         this.error = "error"
-    //     }
-    // });
+        } catch (error) {
+            console.log(error);
+        }
+    });
 }
 
 const hydrate = create({
