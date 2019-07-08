@@ -28,7 +28,7 @@ const RightActions = (progress, dragX) =>{
 export const Separator = () => <View style={styles.separator} />;
 
 
-@inject('notif')
+//@inject('notif')
 @inject('listStore')
 @observer
 export default class ListItem extends Component<Props> {

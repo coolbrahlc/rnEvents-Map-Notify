@@ -11,7 +11,7 @@ YellowBox.ignoreWarnings(['Remote debugger']);
 class App extends Component<Props> {
   constructor(props) {
     super(props);
-    this.notif = new NotifService(this.onRegisterNotif, this.onNotif);
+    //this.notif = new NotifService(this.onRegisterNotif, this.onNotif);
   }
 
   onRegisterNotif = (token) => {
@@ -26,8 +26,10 @@ class App extends Component<Props> {
   };
 
   render() {
+
+    // notif={this.notif}
     return (
-        <Provider {...stores} notif={this.notif}>
+        <Provider {...stores} >
             <Navigator />
         </Provider>
     );

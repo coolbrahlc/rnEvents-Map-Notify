@@ -8,7 +8,7 @@ import moment from 'moment'
 const LIGHT_GRAY = "#D3D3D3";
 
 @inject('listStore')
-@inject('notif')
+//@inject('notif')
 @observer
 export default class ToDoForm extends Component<Props> {
 

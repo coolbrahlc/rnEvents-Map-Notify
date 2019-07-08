@@ -6,7 +6,7 @@ import {Separator} from '../Components/ListItem';
 
 
 @inject('listStore')
-@inject('notif')
+//@inject('notif')
 @observer
 class ToDosScreen extends Component<Props> {
 
@@ -25,7 +25,7 @@ class ToDosScreen extends Component<Props> {
     };
     componentDidMount() {
         const {listStore, notif} = this.props;
-        listStore.notif = notif;
+        //listStore.notif = notif;
         listStore.fetchEvents();
     }
 
