@@ -1,5 +1,6 @@
 import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Image, TextInput, Button, Switch} from "react-native";
 import React, {Component} from 'react';
+import Toast from "react-native-root-toast";
 import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import {inject, observer} from "mobx-react";
@@ -52,7 +53,14 @@ export default class ToDoForm extends Component<Props> {
         const {listStore, navigation:{goBack}} = this.props;
         const {name, geoLocation:{latitude, longitude}, description, notify_at, mapChecked} = this.state;
         if (name.length === 0) {
-            return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
+            return Toast.show('Can not be empty', {
+                duration: Toast.durations.LONG,
+                position: Toast.positions.BOTTOM,
+                shadow: true,
+                animation: true,
+                hideOnPress: true,
+                delay: 0,
+            });
         }
         listStore.addListItem({
             name,
@@ -78,7 +86,14 @@ export default class ToDoForm extends Component<Props> {
         const {name, mapChecked, description, geoLocation:{latitude, longitude}, notify_at} = this.state;
         const {listStore, navigation:{getParam, goBack}} = this.props;
         if (name.length === 0) {
-            return ToastAndroid.show('Can not be empty !', ToastAndroid.SHORT);
+            return Toast.show('Can not be empty', {
+                duration: Toast.durations.LONG,
+                position: Toast.positions.BOTTOM,
+                shadow: true,
+                animation: true,
+                hideOnPress: true,
+                delay: 0,
+            });
         }
         let reschedule = false;
         if (getParam('notify_at', new Date()) !== notify_at) {

@@ -3,11 +3,11 @@ import { create, persist } from 'mobx-persist'
 import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";
-import axios from 'axios';
 import ApolloClient from "apollo-boost";
 import {insertToDo, fetchToDos, removeToDo, editToDo} from "../Utils/GraphqlQueries/Queries"
 import {ToastAndroid} from "react-native";
 import config from '../Utils/config'
+import Toast from 'react-native-root-toast';
 
 const client = new ApolloClient({
     uri: config.GRAPHQL_URI,
@@ -17,7 +17,6 @@ const client = new ApolloClient({
 });
 
 
-
 class ToDosStore {
     @persist('list') @observable.shallow list = [];
     @observable dog = null;
@@ -25,7 +24,7 @@ class ToDosStore {
     @observable error = null;
     haveMore = true;
 
-    @action addListItem (item) {
+    @action addListItem(item) {
         client
         .mutate({
             mutation: insertToDo,
@@ -33,13 +32,13 @@ class ToDosStore {
         })
         .then(({data: {insert_todo_kmudrevskiy: {returning}}}) => {
             item.id = returning[0].id;
-            this.notif.scheduleNotif(item);
+            //this.notif.scheduleNotif(item);
             this.list = [item, ...this.list];
         })
         .catch(err=> console.log(err));
     }
 
-    @action async fetchEvents () {
+    @action async fetchEvents() {
         this.isFetching = true;
         this.error = null;
         this.haveMore = true;
@@ -61,9 +60,9 @@ class ToDosStore {
         }
     }
 
-    @action async fetchMore () {
+    @action async fetchMore() {
         if (!this.haveMore) {
-            return
+            return null;
         }
         this.isFetching = true;
         this.error = null;
@@ -88,16 +87,23 @@ class ToDosStore {
         }
     }
 
-    @action async removeListItem (id) {
+    @action async removeListItem(id) {
         try {
             const {data: {delete_todo_kmudrevskiy: {affected_rows}}} = await client.mutate({
                 mutation: removeToDo,
                 variables: {id},
             });
             if (affected_rows === 1) {
-                this.notif.removeSceduleNotif(id);
+                //this.notif.removeSceduleNotif(id);
                 this.list = this.list.filter(item => item.id !== id);
-                ToastAndroid.show('Removed', ToastAndroid.LONG);
+                Toast.show('Removed', {
+                    duration: Toast.durations.LONG,
+                    position: Toast.positions.BOTTOM,
+                    shadow: true,
+                    animation: true,
+                    hideOnPress: true,
+                    delay: 0,
+                });
             }
         } catch (e) {
             console.log(e)
@@ -118,11 +124,18 @@ class ToDosStore {
                 }
                 this.list = this.list.map(item => {
                     if (item.id === id) {
-                        return {...item, ...newData}
+                        return {...item, ...newData};
                     }
-                    return item
+                    return item;
                 });
-                ToastAndroid.show('Edited', ToastAndroid.LONG);
+                Toast.show('Edited', {
+                    duration: Toast.durations.LONG,
+                    position: Toast.positions.BOTTOM,
+                    shadow: true,
+                    animation: true,
+                    hideOnPress: true,
+                    delay: 0,
+                });
             }
         } catch (error) {
             console.log(error);

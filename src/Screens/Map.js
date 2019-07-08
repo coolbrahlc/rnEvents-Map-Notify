@@ -23,8 +23,8 @@ class Map extends Component<Props> {
         };
     }
     onRegionChange = (region) => {
-        this.setState({ region });
         const {saveLocation, editMode} = this.props;
+        this.setState({ region });
         editMode && saveLocation(region);
     };
 
@@ -60,21 +60,21 @@ class Map extends Component<Props> {
                         region={this.state.region}
                         onRegionChangeComplete={this.onRegionChange}
                     >
-                        {
-                            markers.map((item, index) => {
-                                const {latitude, longitude, name, description} = item;
-                                return (
-                                    <View>
-                                        <Marker
-                                            onPress={()=>Alert.alert(name, description)}
-                                            coordinate={{latitude, longitude, latitudeDelta, longitudeDelta}}
-                                            title={name}
-                                            description={description}
-                                        />
-                                    </View>
+                    {
+                        markers.map((item, index) => {
+                            const {latitude, longitude, name, description} = item;
+                            return (
+                                <View>
+                                    <Marker
+                                        onPress={()=>Alert.alert(name, description)}
+                                        coordinate={{latitude, longitude, latitudeDelta, longitudeDelta}}
+                                        title={name}
+                                        description={description}
+                                    />
+                                </View>
                                 )
-                            }
-                        )}
+                        })
+                    }
                     </MapView>
                 </View>
             )

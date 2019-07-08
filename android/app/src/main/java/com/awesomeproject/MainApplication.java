@@ -19,7 +19,6 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 
-import com.airbnb.android.react.maps.MapsPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -36,8 +35,7 @@ public class MainApplication extends Application implements ReactApplication {
             new ReactNativePushNotificationPackage(), // <---- Add the Package
             new AsyncStoragePackage(),
             new VectorIconsPackage(),
-            new RNGestureHandlerPackage(),
-            new MapsPackage()
+            new RNGestureHandlerPackage()
       );
     }
 

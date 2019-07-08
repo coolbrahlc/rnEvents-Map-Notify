@@ -24,6 +24,7 @@ module.exports = {
         "react-native"
     ],
     'rules': {
+        "indent": ["error", 4],
         'no-use-before-define': 'off',
         'react/jsx-filename-extension': 'off',
         'react/prop-types': 'off',
