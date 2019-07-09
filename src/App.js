@@ -26,7 +26,6 @@ class App extends Component<Props> {
   };
 
   render() {
-
     // notif={this.notif}
     return (
         <Provider {...stores} >

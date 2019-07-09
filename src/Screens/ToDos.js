@@ -63,8 +63,8 @@ class ToDosScreen extends Component<Props> {
         Alert.alert('123', 'asd')
     };
 
-    loadMore = () =>{
-        console.log('more')
+    loadMore = () => {
+        console.log('more');
         this.props.listStore.fetchMore();
     };
 
@@ -97,27 +97,27 @@ class ToDosScreen extends Component<Props> {
                         </TouchableOpacity>
                     </View>
                 }
-                    <FlatList
-                        data={list}
-                        renderItem={({item, index}) => (
-                            <ListItem
-                                {...item}
-                                onSwipeFromLeft={this.onSwipeFromLeft}
-                                onSwipeFromRight={this.onSwipeFromRight}
-                                navigation={this.props.navigation}
-                                showEdit={this.showEditModal}
-                            />)}
-                        ItemSeparatorComponent={()=><Separator />}
-                        keyExtractor={item => item.id.toString()}
-                        onEndReached={this.loadMore}
-                        onEndReachedThreshold ={0.3}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.isRefreshing}
-                                onRefresh={this.onRefresh}
-                            />
-                        }
-                    />
+                <FlatList
+                    data={list}
+                    renderItem={({item, index}) => (
+                        <ListItem
+                            {...item}
+                            onSwipeFromLeft={this.onSwipeFromLeft}
+                            onSwipeFromRight={this.onSwipeFromRight}
+                            navigation={this.props.navigation}
+                            showEdit={this.showEditModal}
+                        />)}
+                    ItemSeparatorComponent={()=><Separator />}
+                    keyExtractor={item => item.id.toString()}
+                    onEndReached={this.loadMore}
+                    onEndReachedThreshold ={0.3}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={this.state.isRefreshing}
+                            onRefresh={this.onRefresh}
+                        />
+                    }
+                />
                 { isFetching && <ActivityIndicator size="large" color="grey" />}
             </View>
         );

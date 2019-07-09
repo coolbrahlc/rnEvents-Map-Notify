@@ -4,10 +4,9 @@ import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";
 import ApolloClient from "apollo-boost";
-import {insertToDo, fetchToDos, removeToDo, editToDo} from "../Utils/GraphqlQueries/Queries"
-import {ToastAndroid} from "react-native";
-import config from '../Utils/config'
-import Toast from 'react-native-root-toast';
+import {insertToDo, fetchToDos, removeToDo, editToDo} from "../Utils/GraphqlQueries/Queries";
+import config from '../Utils/config';
+import {showToast} from '../Utils/ShowToast';
 
 const client = new ApolloClient({
     uri: config.GRAPHQL_URI,
@@ -16,7 +15,6 @@ const client = new ApolloClient({
     }
 });
 
-
 class ToDosStore {
     @persist('list') @observable.shallow list = [];
     @observable dog = null;
@@ -24,26 +22,26 @@ class ToDosStore {
     @observable error = null;
     haveMore = true;
 
-    @action addListItem(item) {
-        client
-        .mutate({
-            mutation: insertToDo,
-            variables: item,
-        })
-        .then(({data: {insert_todo_kmudrevskiy: {returning}}}) => {
+    addListItem = flow(function* (item) {
+        try {
+            const {data: {insert_todo_kmudrevskiy: {returning}}} = yield client.mutate({
+                mutation: insertToDo,
+                variables: item,
+            });
             item.id = returning[0].id;
-            //this.notif.scheduleNotif(item);
             this.list = [item, ...this.list];
-        })
-        .catch(err=> console.log(err));
-    }
+            //this.notif.scheduleNotif(item);
+        } catch (err) {
+            showToast('Server not responding');
+        }
+    });
 
-    @action async fetchEvents() {
+    fetchEvents = flow( function* () {
         this.isFetching = true;
         this.error = null;
         this.haveMore = true;
         try {
-            const {data: {todo_kmudrevskiy}} = await client.query({
+            const {data: {todo_kmudrevskiy}} = yield client.query({
                 query: fetchToDos,
                 variables: {
                     limit: config.LIMIT,
@@ -56,18 +54,18 @@ class ToDosStore {
         } catch (err) {
             this.isFetching = false;
             this.error = err;
-            ToastAndroid.show('Server not responding', ToastAndroid.LONG);
+            showToast('Server not responding');
         }
-    }
+    });
 
-    @action async fetchMore() {
+    fetchMore = flow(function* () {
         if (!this.haveMore) {
             return null;
         }
         this.isFetching = true;
         this.error = null;
         try {
-            const {data: {todo_kmudrevskiy}} = await client.query({
+            const {data: {todo_kmudrevskiy}} = yield client.query({
                 query: fetchToDos,
                 variables: {
                     limit: config.LIMIT,
@@ -77,68 +75,49 @@ class ToDosStore {
             });
             this.isFetching = false;
             if (todo_kmudrevskiy.length === 0) {
-                this.haveMore = false
+                this.haveMore = false;
             }
             this.list = [...this.list, ...todo_kmudrevskiy];
         } catch (err) {
             this.isFetching = false;
             this.error = err;
-            ToastAndroid.show('Server not responding', ToastAndroid.LONG);
+            showToast('Server not responding');
         }
-    }
+    });
 
-    @action async removeListItem(id) {
+    removeListItem = flow(function* (id) {
         try {
-            const {data: {delete_todo_kmudrevskiy: {affected_rows}}} = await client.mutate({
+            yield client.mutate({ // {data: {delete_todo_kmudrevskiy: {affected_rows}}}
                 mutation: removeToDo,
                 variables: {id},
             });
-            if (affected_rows === 1) {
-                //this.notif.removeSceduleNotif(id);
-                this.list = this.list.filter(item => item.id !== id);
-                Toast.show('Removed', {
-                    duration: Toast.durations.LONG,
-                    position: Toast.positions.BOTTOM,
-                    shadow: true,
-                    animation: true,
-                    hideOnPress: true,
-                    delay: 0,
-                });
-            }
+            this.list = this.list.filter(item => item.id !== id);
+            showToast('Removed');
+            // this.notif.removeSceduleNotif(id);
         } catch (e) {
-            console.log(e)
+            showToast('Server error');
         }
-    }
+    });
 
     editListItem = flow(function* (reschedule, id, newData) {
         try {
-            const res = yield client.mutate({
+            yield client.mutate({  // {data: {update_todo_kmudrevskiy: {affected_rows}}} = res
                 mutation: editToDo,
                 variables: {id, ...newData},
             });
-            const {data: {update_todo_kmudrevskiy: {affected_rows}}} = res;
-            if (affected_rows === 1) {
-                if (reschedule) {
-                    this.notif.removeSceduleNotif(id);
-                    this.notif.scheduleNotif({id, ...newData});
+            this.list = this.list.map(item => {
+                if (item.id === id) {
+                    return {...item, ...newData};
                 }
-                this.list = this.list.map(item => {
-                    if (item.id === id) {
-                        return {...item, ...newData};
-                    }
-                    return item;
-                });
-                Toast.show('Edited', {
-                    duration: Toast.durations.LONG,
-                    position: Toast.positions.BOTTOM,
-                    shadow: true,
-                    animation: true,
-                    hideOnPress: true,
-                    delay: 0,
-                });
-            }
+                return item;
+            });
+            showToast('Edited');
+            // if (reschedule) {
+            //     this.notif.removeSceduleNotif(id);
+            //     this.notif.scheduleNotif({id, ...newData});
+            // }
         } catch (error) {
-            console.log(error);
+            showToast('Server error');
         }
     });
 }
@@ -148,18 +127,17 @@ const hydrate = create({
     jsonify: true,
 });
 
-const RemoteStore = remotedev(ToDosStore);
+//const RemoteStore = remotedev(ToDosStore);
 
 // const clearAsyncStorage = async() => {
 //     AsyncStorage.clear();
 // };
 // clearAsyncStorage().then( data => console.log('success'));
 
-const toDosStore = new RemoteStore();
+//const ToDosStoreRemote = remotedev(ToDosStore, { name: 'Todo list', global: true });
+const toDosStore = new ToDosStore();
 // hydrate('listStore', listStore)
 // .then(() => console.log('listStore has been hydrated'))
 // .catch(err => console.log(err));
 
-//export default remotedev(appStore);
-
-export default toDosStore
+export default toDosStore;

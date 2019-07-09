@@ -1,11 +1,11 @@
-import {StyleSheet, Text, View, TouchableOpacity, ToastAndroid, Image, TextInput, Button, Switch} from "react-native";
+import {StyleSheet, Text, View, TouchableOpacity, Image, TextInput, Button, Switch} from "react-native";
 import React, {Component} from 'react';
-import Toast from "react-native-root-toast";
 import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import {inject, observer} from "mobx-react";
 import RightChevron from '../Images/baseline_chevron_right_black_18dp.png'
 import moment from 'moment'
+import { showToast } from '../Utils/ShowToast';
 const LIGHT_GRAY = "#D3D3D3";
 
 @inject('listStore')
@@ -53,14 +53,7 @@ export default class ToDoForm extends Component<Props> {
         const {listStore, navigation:{goBack}} = this.props;
         const {name, geoLocation:{latitude, longitude}, description, notify_at, mapChecked} = this.state;
         if (name.length === 0) {
-            return Toast.show('Can not be empty', {
-                duration: Toast.durations.LONG,
-                position: Toast.positions.BOTTOM,
-                shadow: true,
-                animation: true,
-                hideOnPress: true,
-                delay: 0,
-            });
+            return showToast('Name can not be empty');
         }
         listStore.addListItem({
             name,
@@ -71,29 +64,21 @@ export default class ToDoForm extends Component<Props> {
             toggle_map_points: mapChecked,
             created_at: new Date(),
         });
-        this.setState({
-            name:'',
-            description: '',
-            geoLocation: {},
-            notify_at: new Date(),
-            mapChecked: false,
-        });
+        // this.setState({
+        //     name:'',
+        //     description: '',
+        //     geoLocation: {},
+        //     notify_at: new Date(),
+        //     mapChecked: false,
+        // });
         goBack();
-
     };
 
     edit = () => {
         const {name, mapChecked, description, geoLocation:{latitude, longitude}, notify_at} = this.state;
         const {listStore, navigation:{getParam, goBack}} = this.props;
         if (name.length === 0) {
-            return Toast.show('Can not be empty', {
-                duration: Toast.durations.LONG,
-                position: Toast.positions.BOTTOM,
-                shadow: true,
-                animation: true,
-                hideOnPress: true,
-                delay: 0,
-            });
+            return showToast('Name can not be empty');
         }
         let reschedule = false;
         if (getParam('notify_at', new Date()) !== notify_at) {
@@ -128,8 +113,9 @@ export default class ToDoForm extends Component<Props> {
     };
 
     render() {
-        const {notify_at, mapChecked} = this.state;
+        const {notify_at, mapChecked, showDatepicker} = this.state;
         const {editMode} = this.props;
+        console.log(new Date(notify_at))
         return (
             <View style={styles.card}>
                 <TextInput
@@ -162,10 +148,11 @@ export default class ToDoForm extends Component<Props> {
                         </Text>
                     </TouchableOpacity>
                     <DateTimePicker
-                        isVisible={this.state.showDatepicker}
+                        isVisible={showDatepicker}
                         mode={'datetime'}
                         onConfirm={this.handleDatePicked}
                         onCancel={this.switchDateTimePicker}
+                        date={new Date(notify_at)}
                     />
                 </View>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between', margin: 10}}>
@@ -183,7 +170,11 @@ export default class ToDoForm extends Component<Props> {
                             />
                         </View>
                             :
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', width: '100%'}}>
+                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '100%'}}>
+                            <Button
+                                onPress={() => this.props.navigation.goBack()}
+                                title="Dismiss"
+                            />
                             <Button
                                 onPress={this.onSubmit}
                                 title="Add event"
