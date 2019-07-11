@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, TouchableOpacity, Image, TextInput, Button, Switch} from "react-native";
+import {StyleSheet, Text, View, TouchableOpacity, Image, TextInput, Button, Switch, PushNotificationIOS} from "react-native";
 import React, {Component} from 'react';
 import Map from "../Screens/Map";
 import DateTimePicker from "react-native-modal-datetime-picker";
@@ -28,7 +28,6 @@ export default class ToDoForm extends Component<Props> {
     switchMapCheckboox = () =>{
         if (this.state.mapChecked) {
              return this.setState({
-
                  mapChecked: false,
                  geoLocation: {}
             });
@@ -63,6 +62,10 @@ export default class ToDoForm extends Component<Props> {
             notify_at,
             toggle_map_points: mapChecked,
             created_at: new Date(),
+        });
+        PushNotificationIOS.presentLocalNotification({
+            alertBody: 'Text',
+            alertAction: 'view',
         });
         // this.setState({
         //     name:'',

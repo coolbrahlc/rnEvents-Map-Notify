@@ -3,6 +3,7 @@ package com.awesomeproject;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.airbnb.android.react.maps.MapsPackage;
 
 
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
@@ -32,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new MapsPackage(),
             new ReactNativePushNotificationPackage(), // <---- Add the Package
             new AsyncStoragePackage(),
             new VectorIconsPackage(),

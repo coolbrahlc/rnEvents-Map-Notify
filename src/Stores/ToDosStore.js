@@ -1,5 +1,5 @@
-import {observable, action, computed} from 'mobx/lib/mobx'
-import { create, persist } from 'mobx-persist'
+import {observable, action, computed} from 'mobx/lib/mobx';
+import { create, persist } from 'mobx-persist';
 import AsyncStorage from '@react-native-community/async-storage';
 import remotedev from 'mobx-remotedev';
 import { flow } from "mobx";

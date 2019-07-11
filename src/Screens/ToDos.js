@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text, Image, ActivityIndicator, Animated, RefreshControl} from 'react-native';
+import {StyleSheet, View, FlatList, Button, TouchableOpacity, Alert, Text,
+    Image, ActivityIndicator, Animated, RefreshControl, NativeModules} from 'react-native';
 import ListItem from '../Components/ListItem';
 import {observer, inject} from 'mobx-react/index'
 import {Separator} from '../Components/ListItem';
@@ -14,7 +15,7 @@ class ToDosScreen extends Component<Props> {
         super(props);
         this.state = {
             isRefreshing: false,
-        }
+        };
     }
 
     showEditModal = (props) => {
@@ -24,6 +25,11 @@ class ToDosScreen extends Component<Props> {
         this.props.navigation.navigate('EditModal', {editMode: false})
     };
     componentDidMount() {
+        const Volume = NativeModules.Volume;
+        Volume.getSystemVolume((error, volume) => {
+            console.log(error, volume)
+            Alert.alert(volume, volume)
+        });
         const {listStore, notif} = this.props;
         //listStore.notif = notif;
         listStore.fetchEvents();
